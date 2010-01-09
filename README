@@ -1,3 +1,22 @@
-bs - Basic/Bootstrap/Bullshit Scheme interpreter.
+bs is an interpreter for a simple Scheme-like language that is in very early
+development. But when it is finished, it will still lack the more advanced
+features of Scheme, such as macros and continuations.
+
+The goal of bs is to implement enough of Scheme to write a Scheme compiler
+in itself. A secondary goal is to learn about writing simple interpreters.
+
+This project was inspired by Peter Michaux's "Scheme from Scratch" project.
+http://peter.michaux.ca/articles/scheme-from-scratch-introduction
+
+To build bs, you'll need libgc and scons. Assuming you already have gcc
+installed, you can install the neccessary packages on a Debian-based system
+with this command:
+
+sudo apt-get install libgc-dev scons
+
+Then type "scons" in the project directory to build bs.
+
+If you are using a non-Debian-based system, or a different compiler, you'll
+probably need to edit the SConstruct file.
 
 See the LICENSE file for copyright and licensing information.
