@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <ctype.h>
+#include <assert.h>
 #include "gc.h"
 
 #include "lexer.h"
@@ -30,6 +32,7 @@ static token *get_token_from_queue(void);
 static inline int queue_is_empty(void);
 static size_t read_line(FILE *in);
 static void lex_input(void);
+static size_t lex_number(size_t start);
 
 
 /* Return the next token from the input stream. */
@@ -80,16 +83,11 @@ static token *add_token_to_queue(void)
 
 static token *get_token_from_queue(void)
 {
-    token *t = queue_front;
-
     if (queue_is_empty()) {
-        // We should read in more input and create more tokens when this
-        // happens. For now, we create a dummy token and stick in in the
-        // queue;
-        warn("no tokens in queue.");
-        t = add_token_to_queue();
+        lex_input();
     }
 
+    token *t = queue_front;
     queue_front = t->next;
     return t;
 }
@@ -118,5 +116,60 @@ static size_t read_line(FILE *in)
 /**** Lexical Analysis ****/
 static void lex_input(void)
 {
-    // TODO: STUB
+    size_t len = read_line(stdin);   // TODO: input from an arbitrary FILE.
+    if (len == 0) {
+        add_token_to_queue();
+        return;
+    }
+
+    size_t pos = 0;
+    char c;
+
+    while (pos < len) {
+        c = input_buffer[pos];
+
+        if (isspace(c)) {
+            pos++;
+            continue;
+        }
+
+        if (isdigit(c) || c == '-') {
+            pos = lex_number(pos);
+            pos++;
+            continue;
+        } else {
+            error("unrecognized character '%c'", c);
+        }
+        pos++;
+    }
+
+    token *t = add_token_to_queue();
+    t->type = EOL;
 }
+
+
+static size_t lex_number(size_t start)
+{
+    char *end;
+    errno = 0;
+    long num = strtol(&input_buffer[start], &end, 0);
+
+    if (errno) {
+        error("unable to read number:");
+    } else if (&input_buffer[start] == end) {
+        error("expected a number, but was disappointed");
+    } else if (!isspace(*end)) {
+        error("trailing characters after number");
+    }
+
+    token *t = add_token_to_queue();
+    t->type = NUMBER;
+    t->value.number = num;
+
+    // Figure out how many characters strtol read.
+    ptrdiff_t l = end - &input_buffer[start];
+    assert(l > 0);
+
+    return start + (size_t)l;
+}
+
