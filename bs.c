@@ -8,35 +8,23 @@
 #include "gc.h"
 
 #include "error.h"
-#include "lexer.h"
+#include "object.h"
+#include "parser.h"
 
-static void print_token(token const * const t)
-{
-    switch (t->type) {
-        case NUMBER:
-            printf("NUM(%ld) ", t->value.number);
-            break;
-        default:
-            error("unknown token type.");
-    }
-}
 
 int main(void)
 {
-    printf("Lexer test. Press ctrl-d to quit.\n");
+    printf("Parser test. Press ctrl-d to quit.\n");
     printf("bs> ");
 
-    token *t = get_token();
-    while (t->type != DONE) {
-
-        while (t->type != EOL) {
-            print_token(t);
-            printf("\n");
-            t = get_token();
+    object *obj;
+    while ((obj = bs_read())) {
+        if (obj->type == NUMBER) {
+            printf("%ld", obj->value.number);
+        } else {
+            error("unknown object type");
         }
-
-        printf("bs> ");
-        t = get_token();
+        printf("\nbs> ");
     }
 
     printf("\n");

@@ -59,7 +59,7 @@ static token *alloc_token(void)
         error("unable to allocate a token:");
     }
 
-    t->type = DONE;
+    t->type = TOK_DONE;
     t->next = NULL;
 
     return t;
@@ -83,7 +83,7 @@ static token *add_token_to_queue(void)
 
 static token *get_token_from_queue(void)
 {
-    if (queue_is_empty()) {
+    while (queue_is_empty()) {
         lex_input();
     }
 
@@ -142,9 +142,6 @@ static void lex_input(void)
         }
         pos++;
     }
-
-    token *t = add_token_to_queue();
-    t->type = EOL;
 }
 
 
@@ -163,7 +160,7 @@ static size_t lex_number(size_t start)
     }
 
     token *t = add_token_to_queue();
-    t->type = NUMBER;
+    t->type = TOK_NUMBER;
     t->value.number = num;
 
     // Figure out how many characters strtol read.

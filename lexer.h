@@ -8,9 +8,8 @@
 #define LEXER_H
 
 typedef enum {
-    DONE,
-    EOL,
-    NUMBER,
+    TOK_DONE,
+    TOK_NUMBER,
 } token_type;
 
 typedef struct token {
