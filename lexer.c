@@ -9,6 +9,7 @@
 #include <string.h>
 #include <errno.h>
 #include <ctype.h>
+#include <assert.h>
 #include "gc.h"
 
 #include "lexer.h"
@@ -149,21 +150,15 @@ static void lex_input(void)
 
 static size_t lex_number(size_t start)
 {
-    size_t end = start;
+    char *end;
+    errno = 0;
+    long num = strtol(&input_buffer[start], &end, 0);
 
-    int sign = 1;
-    if (input_buffer[end] == '-') {
-        sign = -1;
-        end++;
-    }
-
-    long num = 0;
-    while (isdigit(input_buffer[end])) {
-        num = (num * 10) + (input_buffer[end] - '0');
-        end++;
-    }
-
-    if (!(isspace(input_buffer[end]))) {
+    if (errno) {
+        error("unable to read number:");
+    } else if (&input_buffer[start] == end) {
+        error("expected a number, but was disappointed");
+    } else if (!isspace(*end)) {
         error("trailing characters after number");
     }
 
@@ -171,6 +166,10 @@ static size_t lex_number(size_t start)
     t->type = NUMBER;
     t->value.number = num;
 
-    return end;
+    // Figure out how many characters strtol read.
+    ptrdiff_t l = end - &input_buffer[start];
+    assert(l > 0);
+
+    return start + (size_t)l;
 }
 
