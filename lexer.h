@@ -9,6 +9,7 @@
 
 typedef enum {
     DONE,
+    EOL,
     NUMBER,
 } token_type;
 

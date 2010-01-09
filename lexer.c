@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <ctype.h>
 #include "gc.h"
 
 #include "lexer.h"
@@ -30,6 +31,7 @@ static token *get_token_from_queue(void);
 static inline int queue_is_empty(void);
 static size_t read_line(FILE *in);
 static void lex_input(void);
+static size_t lex_number(size_t start);
 
 
 /* Return the next token from the input stream. */
@@ -80,16 +82,11 @@ static token *add_token_to_queue(void)
 
 static token *get_token_from_queue(void)
 {
-    token *t = queue_front;
-
     if (queue_is_empty()) {
-        // We should read in more input and create more tokens when this
-        // happens. For now, we create a dummy token and stick in in the
-        // queue;
-        warn("no tokens in queue.");
-        t = add_token_to_queue();
+        lex_input();
     }
 
+    token *t = queue_front;
     queue_front = t->next;
     return t;
 }
@@ -118,5 +115,62 @@ static size_t read_line(FILE *in)
 /**** Lexical Analysis ****/
 static void lex_input(void)
 {
-    // TODO: STUB
+    size_t len = read_line(stdin);   // TODO: input from an arbitrary FILE.
+    if (len == 0) {
+        add_token_to_queue();
+        return;
+    }
+
+    size_t pos = 0;
+    char c;
+
+    while (pos < len) {
+        c = input_buffer[pos];
+
+        if (isspace(c)) {
+            pos++;
+            continue;
+        }
+
+        if (isdigit(c) || c == '-') {
+            pos = lex_number(pos);
+            pos++;
+            continue;
+        } else {
+            error("unrecognized character '%c'", c);
+        }
+        pos++;
+    }
+
+    token *t = add_token_to_queue();
+    t->type = EOL;
 }
+
+
+static size_t lex_number(size_t start)
+{
+    size_t end = start;
+
+    int sign = 1;
+    if (input_buffer[end] == '-') {
+        sign = -1;
+        end++;
+    }
+
+    long num = 0;
+    while (isdigit(input_buffer[end])) {
+        num = (num * 10) + (input_buffer[end] - '0');
+        end++;
+    }
+
+    if (!(isspace(input_buffer[end]))) {
+        error("trailing characters after number");
+    }
+
+    token *t = add_token_to_queue();
+    t->type = NUMBER;
+    t->value.number = num;
+
+    return end;
+}
+
