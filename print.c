@@ -21,6 +21,9 @@ void bs_write(FILE *out, object *exp)
         case NUMBER:
             fprintf(out, "%ld", exp->value.number);
             break;
+        case BOOLEAN:
+            fprintf(out, "#%c", (exp->value.boolean == 0 ? 'f' : 't'));
+            break;
         default:
             error("unknown expression type.");
     }

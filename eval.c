@@ -23,7 +23,11 @@ object *bs_eval(object *exp)
 
 static int is_self_evaluating(object *obj)
 {
-    if (obj && obj->type == NUMBER) {
+    if (obj == NULL) {
+        error("null object");
+    }
+
+    if (obj->type == NUMBER || obj->type == BOOLEAN) {
         return 1;
     } else {
         return 0;

@@ -12,6 +12,9 @@
 #include "error.h"
 
 
+static object true_object = {.type = BOOLEAN, .value.boolean = 1};
+static object false_object = {.type = BOOLEAN, .value.boolean = 0};
+
 object *bs_read(FILE *in) 
 {
     token *t = get_token(in);
@@ -20,6 +23,11 @@ object *bs_read(FILE *in)
         switch (t->type) {
             case TOK_NUMBER:
                 return make_number(t->value.number);
+            case TOK_BOOLEAN:
+                if (t->value.boolean == 0)
+                    return &false_object;
+                else
+                    return &true_object;
             default:
                 error("unknown token type");
         }
@@ -28,3 +36,4 @@ object *bs_read(FILE *in)
 
     return NULL;
 }
+

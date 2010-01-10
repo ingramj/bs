@@ -8,13 +8,15 @@
 #define OBJECT_H
 
 typedef enum {
-    NUMBER
+    NUMBER,
+    BOOLEAN
 } object_type;
 
 
 typedef struct object {
     union {
         long number;
+        int boolean;
     } value;
     object_type type;
 } object;
@@ -22,6 +24,9 @@ typedef struct object {
 
 object *make_number(long value);
 int is_number(object *obj);
+
+int is_boolean(object *obj);
+int is_false(object *obj);
 
 #endif
 

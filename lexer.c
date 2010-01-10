@@ -116,7 +116,7 @@ static size_t read_line(FILE *in)
 /**** Lexical Analysis ****/
 static void lex_input(FILE *in)
 {
-    size_t len = read_line(in);   // TODO: input from an arbitrary FILE.
+    size_t len = read_line(in);
     if (len == 0) {
         add_token_to_queue();
         return;
@@ -137,6 +137,20 @@ static void lex_input(FILE *in)
             pos = lex_number(pos);
             pos++;
             continue;
+        } else if (c == '#') {
+            if (input_buffer[pos + 1] == 'f') {
+                token *t = add_token_to_queue();
+                t->type = TOK_BOOLEAN;
+                t->value.boolean = 0;
+                pos += 2;
+            } else if (input_buffer[pos + 1] == 't') {
+                token *t = add_token_to_queue();
+                t->type = TOK_BOOLEAN;
+                t->value.boolean = 1;
+                pos += 2;
+            } else {
+                error("expected a boolean, but was disappointed.");
+            }
         } else {
             error("unrecognized character '%c'", c);
         }

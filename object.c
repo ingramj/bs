@@ -43,3 +43,21 @@ int is_number(object *obj)
     return obj->type == NUMBER;
 }
 
+
+int is_boolean(object *obj)
+{
+    if (obj == NULL) {
+        error("null object");
+    }
+    return obj->type == BOOLEAN;
+}
+
+
+int is_false(object *obj)
+{
+    if (obj == NULL) {
+        error("null object");
+    }
+    return (obj->type == BOOLEAN && obj->value.boolean == 0);
+}
+
