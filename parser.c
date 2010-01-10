@@ -10,7 +10,8 @@
 #include "error.h"
 
 
-object *bs_read(void) {
+object *bs_read(void) 
+{
     token *t = get_token();
 
     while (t->type != TOK_DONE) {

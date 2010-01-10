@@ -1,4 +1,4 @@
-/* A lexer for a scheme-like language.
+/* A lexer for a Scheme-like language.
  *
  * Copyright (c) 2010 James E. Ingram
  * See the LICENSE file for terms of use.
