@@ -138,15 +138,11 @@ static void lex_input(FILE *in)
             pos++;
             continue;
         } else if (c == '#') {
-            if (input_buffer[pos + 1] == 'f') {
+            char n = input_buffer[pos + 1];
+            if (n == 'f' || n == 'F' || n == 't' || n == 'T') {
                 token *t = add_token_to_queue();
                 t->type = TOK_BOOLEAN;
-                t->value.boolean = 0;
-                pos += 2;
-            } else if (input_buffer[pos + 1] == 't') {
-                token *t = add_token_to_queue();
-                t->type = TOK_BOOLEAN;
-                t->value.boolean = 1;
+                t->value.boolean = (n == 'f' || n == 'F' ? 0 : 1);
                 pos += 2;
             } else {
                 error("expected a boolean, but was disappointed.");
