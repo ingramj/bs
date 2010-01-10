@@ -1,19 +1,19 @@
-/* Parser for a Scheme-like language.
+/* Expression printer for a Scheme-like language.
  *
  * Copyright (c) 2010 James E. Ingram
  * See the LICENSE file for terms of use.
  */
 
-#ifndef PARSER_H
-#define PARSER_H
+#ifndef PRINT_H
+#define PRINT_H
 
 #include <stdio.h>
 
 #include "object.h"
 
-object *bs_read(FILE *in);
+void bs_write(FILE *out, object *exp);
 
-#define PARSER_H
+#define PRINT_H
 
 #endif
 

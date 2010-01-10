@@ -28,17 +28,17 @@
 
 static token *alloc_token(void);
 static token *add_token_to_queue(void);
-static token *get_token_from_queue(void);
+static token *get_token_from_queue(FILE *in);
 static inline int queue_is_empty(void);
 static size_t read_line(FILE *in);
-static void lex_input(void);
+static void lex_input(FILE *in);
 static size_t lex_number(size_t start);
 
 
 /* Return the next token from the input stream. */
-token *get_token(void)
+token *get_token(FILE *in)
 {
-    return get_token_from_queue();
+    return get_token_from_queue(in);
 }
 
 
@@ -81,10 +81,10 @@ static token *add_token_to_queue(void)
 }
 
 
-static token *get_token_from_queue(void)
+static token *get_token_from_queue(FILE *in)
 {
     while (queue_is_empty()) {
-        lex_input();
+        lex_input(in);
     }
 
     token *t = queue_front;
@@ -114,9 +114,9 @@ static size_t read_line(FILE *in)
 
 
 /**** Lexical Analysis ****/
-static void lex_input(void)
+static void lex_input(FILE *in)
 {
-    size_t len = read_line(stdin);   // TODO: input from an arbitrary FILE.
+    size_t len = read_line(in);   // TODO: input from an arbitrary FILE.
     if (len == 0) {
         add_token_to_queue();
         return;

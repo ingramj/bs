@@ -7,6 +7,8 @@
 #ifndef LEXER_H
 #define LEXER_H
 
+#include <stdio.h>
+
 typedef enum {
     TOK_DONE,
     TOK_NUMBER,
@@ -20,7 +22,7 @@ typedef struct token {
     token_type type;
 } token;
 
-token *get_token(void);
+token *get_token(FILE *in);
 
 #endif
 

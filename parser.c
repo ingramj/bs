@@ -4,15 +4,17 @@
  * See the LICENSE file for terms of use.
  */
 
+#include <stdio.h>
+
 #include "parser.h"
 #include "lexer.h"
 #include "object.h"
 #include "error.h"
 
 
-object *bs_read(void) 
+object *bs_read(FILE *in) 
 {
-    token *t = get_token();
+    token *t = get_token(in);
 
     while (t->type != TOK_DONE) {
         switch (t->type) {
@@ -21,7 +23,7 @@ object *bs_read(void)
             default:
                 error("unknown token type");
         }
-        t = get_token();
+        t = get_token(in);
     }
 
     return NULL;

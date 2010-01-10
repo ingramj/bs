@@ -10,21 +10,19 @@
 #include "error.h"
 #include "object.h"
 #include "parser.h"
+#include "eval.h"
+#include "print.h"
 
 
 int main(void)
 {
-    printf("Parser test. Press ctrl-d to quit.\n");
+    printf("REPL test. Press ctrl-d to quit.\n");
     printf("bs> ");
-
-    object *obj;
-    while ((obj = bs_read())) {
-        if (obj->type == NUMBER) {
-            printf("%ld", obj->value.number);
-        } else {
-            error("unknown object type");
-        }
+    object *obj = bs_read(stdin);
+    while (obj) {
+        bs_write(stdout, bs_eval(obj));
         printf("\nbs> ");
+        obj = bs_read(stdin);
     }
 
     printf("\n");
