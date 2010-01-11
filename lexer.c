@@ -30,9 +30,13 @@ static token *alloc_token(void);
 static token *add_token_to_queue(void);
 static token *get_token_from_queue(FILE *in);
 static inline int queue_is_empty(void);
-static long read_line(FILE *in);
+
+static long read_line(char const **bufptr, FILE *in);
+
+static int peek(char const * const buffer);
 static void lex_input(FILE *in);
-static long lex_number(long start);
+static char const *lex_number(char const *buffer);
+static char const *lex_octothorpe(char const *buffer);
 
 
 /* Return the next token from the input stream. */
@@ -89,30 +93,33 @@ static token *get_token_from_queue(FILE *in)
 
     token *t = queue_front;
     queue_front = t->next;
+    t->next = NULL;
     return t;
 }
 
 
 /**** Input reading and buffering. ****/
-static char *input_buffer = NULL;
 
-
-/* Read a line of input, ending on a newline or null character. */
-static long read_line(FILE *in)
+/* Read a line of input, ending on a newline or null character. Returns
+ * the number of characters read, or -1 on EOF. */
+static long read_line(char const **bufptr, FILE *in)
 {
     if (in == NULL) {
         error("null file pointer");
     }
 
-    // reset input_buffer to a known size.
-    size_t size = 128;
-    input_buffer = GC_REALLOC(input_buffer, size);
+    static char *input_buffer = NULL;
+    static size_t size = 128;
     if (input_buffer == NULL) {
-        error("unable to allocate input buffer:");
+        input_buffer = GC_REALLOC(input_buffer, size);
+        if (input_buffer == NULL) {
+            error("unable to allocate input buffer:");
+        }
     }
 
     int c = fgetc(in);
     if (c == EOF) {
+        *bufptr = NULL;
         return -1;
     }
 
@@ -140,63 +147,64 @@ static long read_line(FILE *in)
 
     *p = '\0';
 
+    *bufptr = input_buffer;
     return bytes;
 }
 
 
 /**** Lexical Analysis ****/
-static void lex_input(FILE *in)
+
+static int peek(char const * const buffer)
 {
-    long len = read_line(in);
-    if (len <= 0) {
-        add_token_to_queue();
-        return;
-    }
-
-    long pos = 0;
-    char c;
-
-    while (pos < len) {
-        c = input_buffer[pos];
-
-        if (isspace(c)) {
-            pos++;
-            continue;
-        }
-
-        if (isdigit(c) || c == '-') {
-            pos = lex_number(pos);
-            pos++;
-            continue;
-        } else if (c == '#') {
-            char n = input_buffer[pos + 1];
-            if (n == 'f' || n == 'F' || n == 't' || n == 'T') {
-                token *t = add_token_to_queue();
-                t->type = TOK_BOOLEAN;
-                t->value.boolean = (n == 'f' || n == 'F' ? 0 : 1);
-                pos += 2;
-            } else {
-                error("expected a boolean, but was disappointed.");
-            }
-        } else {
-            error("unrecognized character '%c'", c);
-        }
-        pos++;
+    if (*buffer == '\0') {
+        return -1;
+    } else {
+        return *(buffer + 1);
     }
 }
 
 
-static long lex_number(long start)
+static void lex_input(FILE *in)
+{
+    char const * buffer = NULL;
+    long len = read_line(&buffer, in);
+
+    if (len <= 0) {
+        token *t = add_token_to_queue();
+        t->type = TOK_DONE;
+        return;
+    }
+
+    char const * const end = buffer + len;
+
+    char const *p = buffer;
+    while (p < end) {
+        if (isspace(*p)) {
+            p++;
+            continue;
+        } else if (isdigit(*p) || *p == '-') {
+            p = lex_number(p);
+        } else if (*p == '#') {
+            p = lex_octothorpe(p);
+        } else {
+            error("unrecognized character.");
+        }
+        p++;
+    }
+}
+
+
+static char const *lex_number(char const *buffer)
 {
     char *end;
     errno = 0;
-    long num = strtol(&input_buffer[start], &end, 0);
+    long num = strtol(buffer, &end, 0);
 
     if (errno) {
         error("unable to read number:");
-    } else if (&input_buffer[start] == end) {
+    } else if (buffer == end) {
         error("expected a number, but was disappointed");
-    } else if (!isspace(*end)) {
+    } else if (!isspace(*end) && *end != '\0') {
         error("trailing characters after number");
     }
 
@@ -204,10 +212,28 @@ static long lex_number(long start)
     t->type = TOK_NUMBER;
     t->value.number = num;
 
-    // Figure out how many characters strtol read.
-    ptrdiff_t l = end - &input_buffer[start];
-    assert(l > 0);
+    return end;
+}
 
-    return start + l;
+
+// The function that sounds like a cartoon villian.
+static char const *lex_octothorpe(char const *buffer)
+{
+    int n = peek(buffer);
+    if (n <= 0) {
+        error("unexpected end of line");
+    }
+
+    if (n == 't' || n == 'T' || n == 'f' || n == 'F') {
+        if (!isspace(peek(buffer + 1))) {
+            error("trailing characters after boolean constant.");
+        }
+        token *t = add_token_to_queue();
+        t->type = TOK_BOOLEAN;
+        t->value.boolean = (n == 'f' || n == 'F') ? 0 : 1;
+        return buffer + 1;
+    } else {
+        error("expected a boolean constant, was disappointed");
+    }
 }
 
