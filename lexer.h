@@ -12,13 +12,15 @@
 typedef enum {
     TOK_DONE,
     TOK_NUMBER,
-    TOK_BOOLEAN
+    TOK_BOOLEAN,
+    TOK_CHARACTER
 } token_type;
 
 typedef struct token {
     union {
         long number;
         int boolean;
+        char character;
     } value;
     struct token *next;
     token_type type;

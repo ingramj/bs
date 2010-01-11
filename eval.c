@@ -27,7 +27,9 @@ static int is_self_evaluating(object *obj)
         error("null object");
     }
 
-    if (obj->type == NUMBER || obj->type == BOOLEAN) {
+    if (obj->type == NUMBER || obj->type == BOOLEAN ||
+            obj->type == CHARACTER)
+    {
         return 1;
     } else {
         return 0;

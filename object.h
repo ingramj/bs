@@ -9,7 +9,8 @@
 
 typedef enum {
     NUMBER,
-    BOOLEAN
+    BOOLEAN,
+    CHARACTER
 } object_type;
 
 
@@ -17,6 +18,7 @@ typedef struct object {
     union {
         long number;
         int boolean;
+        char character;
     } value;
     object_type type;
 } object;
@@ -27,6 +29,9 @@ int is_number(object *obj);
 
 int is_boolean(object *obj);
 int is_false(object *obj);
+
+object *make_character(char value);
+int is_character(object *obj);
 
 #endif
 

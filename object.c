@@ -61,3 +61,19 @@ int is_false(object *obj)
     return (obj->type == BOOLEAN && obj->value.boolean == 0);
 }
 
+
+object *make_character(char value)
+{
+    object *c = alloc_object();
+    c->type = CHARACTER;
+    c->value.character = value;
+
+    return c;
+}
+
+
+int is_character(object *obj)
+{
+    return obj->type == CHARACTER;
+}
+

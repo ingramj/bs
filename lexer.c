@@ -37,6 +37,7 @@ static int peek(char const * const buffer);
 static void lex_input(FILE *in);
 static char const *lex_number(char const *buffer);
 static char const *lex_octothorpe(char const *buffer);
+static char const *lex_character(char const *buffer);
 
 
 /* Return the next token from the input stream. */
@@ -216,7 +217,7 @@ static char const *lex_number(char const *buffer)
 }
 
 
-// The function that sounds like a cartoon villian.
+// The function that sounds like a cartoon villain.
 static char const *lex_octothorpe(char const *buffer)
 {
     int n = peek(buffer);
@@ -224,7 +225,9 @@ static char const *lex_octothorpe(char const *buffer)
         error("unexpected end of line");
     }
 
-    if (n == 't' || n == 'T' || n == 'f' || n == 'F') {
+    if (n == '\\') {
+        return lex_character(buffer + 2);
+    } else if (n == 't' || n == 'T' || n == 'f' || n == 'F') {
         if (!isspace(peek(buffer + 1))) {
             error("trailing characters after boolean constant.");
         }
@@ -235,5 +238,48 @@ static char const *lex_octothorpe(char const *buffer)
     } else {
         error("expected a boolean constant, was disappointed");
     }
+}
+
+
+static char const *lex_character(char const *buffer)
+{
+    if (*buffer == '\0' || isspace(*buffer)) {
+        error("incomplete character constant");
+    }
+
+    // TODO: Real Schemes support a much larger set of character constants.
+    if (!isalpha(*buffer)) {
+        error("expected an alphabetic character");
+    }
+
+    char val = *buffer;
+    switch(val) {
+        case 's':
+            if (peek(buffer) == 'p') {
+                if (strncmp(buffer, "space", 5) == 0) {
+                    val = ' ';
+                    buffer = buffer + 4;
+                }
+            }
+            break;
+        case 'n':
+            if (peek(buffer) == 'e') {
+                if (strncmp(buffer, "newline", 7) == 0) {
+                    val = '\n';
+                    buffer = buffer + 6;
+                }
+            }
+            break;
+    }
+
+    if (!isspace(peek(buffer)) && peek(buffer) != '\0') {
+        error("trailing characters after character constant");
+    }
+
+    token *t = add_token_to_queue();
+    t->type = TOK_CHARACTER;
+    t->value.character = val;
+
+    return buffer + 1;
 }
 

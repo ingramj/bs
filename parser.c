@@ -28,6 +28,8 @@ object *bs_read(FILE *in)
                     return &false_object;
                 else
                     return &true_object;
+            case TOK_CHARACTER:
+                return make_character(t->value.character);
             default:
                 error("unknown token type");
         }

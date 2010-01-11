@@ -17,15 +17,21 @@ void bs_write(FILE *out, object *exp)
         error("unable to write expression");
     }
 
-    switch (exp->type) {
-        case NUMBER:
-            fprintf(out, "%ld", exp->value.number);
-            break;
-        case BOOLEAN:
-            fprintf(out, "#%c", (exp->value.boolean == 0 ? 'f' : 't'));
-            break;
-        default:
-            error("unknown expression type.");
+    if (is_number(exp)) {
+        fprintf(out, "%ld", exp->value.number);
+    } else if (is_boolean(exp)) {
+        fprintf(out, "%c", is_false(exp) ? 'f' : 't');
+    } else if (is_character(exp)) {
+        fprintf(out, "#\\");
+        if (exp->value.character == '\n') {
+            fprintf(out, "newline");
+        } else if (exp->value.character == ' ') {
+            fprintf(out, "space");
+        } else {
+            fprintf(out, "%c", exp->value.character);
+        }
+    } else {
+        error("unknown expression type");
     }
 }
 
