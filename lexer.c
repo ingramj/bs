@@ -30,9 +30,9 @@ static token *alloc_token(void);
 static token *add_token_to_queue(void);
 static token *get_token_from_queue(FILE *in);
 static inline int queue_is_empty(void);
-static size_t read_line(FILE *in);
+static long read_line(FILE *in);
 static void lex_input(FILE *in);
-static size_t lex_number(size_t start);
+static long lex_number(long start);
 
 
 /* Return the next token from the input stream. */
@@ -94,35 +94,66 @@ static token *get_token_from_queue(FILE *in)
 
 
 /**** Input reading and buffering. ****/
-#define BUFSIZE 1024
-static char input_buffer[BUFSIZE];
+static char *input_buffer = NULL;
 
 
-static size_t read_line(FILE *in)
+/* Read a line of input, ending on a newline or null character. */
+static long read_line(FILE *in)
 {
-    char *l = fgets(input_buffer, BUFSIZE, in);
-    if (l == NULL) {
-        if (ferror(in)) {
-            error("an error occurred while reading input:");
-        } else {
-            input_buffer[0] = '\0';
-        }
+    if (in == NULL) {
+        error("null file pointer");
     }
 
-    return strlen(input_buffer);
+    // reset input_buffer to a known size.
+    size_t size = 128;
+    input_buffer = GC_REALLOC(input_buffer, size);
+    if (input_buffer == NULL) {
+        error("unable to allocate input buffer:");
+    }
+
+    int c = fgetc(in);
+    if (c == EOF) {
+        return -1;
+    }
+
+    long bytes = 1;             // number of characters read.
+    char *p = input_buffer;     // our position in the buffer.
+    while (c != EOF && c != '\0') {
+        if (bytes > (long)(size - 1)) {
+            size = size + 128;
+            input_buffer = GC_REALLOC(input_buffer, size);
+            if (input_buffer == NULL) {
+                error("unable to allocate input buffer:");
+            }
+            // input_buffer may have moved, so reset p.
+            p = input_buffer + bytes - 1;
+        }
+
+        *p++ = (char) c;
+        if (c == '\n') {
+            break;
+        }
+
+        c = fgetc(in);
+        bytes++;
+    }
+
+    *p = '\0';
+
+    return bytes;
 }
 
 
 /**** Lexical Analysis ****/
 static void lex_input(FILE *in)
 {
-    size_t len = read_line(in);
-    if (len == 0) {
+    long len = read_line(in);
+    if (len <= 0) {
         add_token_to_queue();
         return;
     }
 
-    size_t pos = 0;
+    long pos = 0;
     char c;
 
     while (pos < len) {
@@ -155,7 +186,7 @@ static void lex_input(FILE *in)
 }
 
 
-static size_t lex_number(size_t start)
+static long lex_number(long start)
 {
     char *end;
     errno = 0;
@@ -177,6 +208,6 @@ static size_t lex_number(size_t start)
     ptrdiff_t l = end - &input_buffer[start];
     assert(l > 0);
 
-    return start + (size_t)l;
+    return start + l;
 }
 

@@ -16,6 +16,8 @@
 
 int main(void)
 {
+    GC_INIT();
+
     printf("REPL test. Press ctrl-d to quit.\n");
     printf("bs> ");
     object *obj = bs_read(stdin);
