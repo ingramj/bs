@@ -77,3 +77,19 @@ int is_character(object *obj)
     return obj->type == CHARACTER;
 }
 
+
+object *make_string(char *value)
+{
+    object *s = alloc_object();
+    s->type = STRING;
+    s->value.string = value;
+
+    return s;
+}
+
+
+int is_string(object *obj)
+{
+    return obj->type == STRING;
+}
+

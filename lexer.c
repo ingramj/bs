@@ -292,7 +292,6 @@ static int lex_string(char const *start, char const **end, char **value)
             error("non-terminated string");
         }
     }
-    printf("\n");
     *end = start;
     static char *dummy_string = "this space reserved.";
     *value = dummy_string;

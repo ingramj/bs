@@ -30,6 +30,8 @@ object *bs_read(void)
                     return &true_object;
             case TOK_CHARACTER:
                 return make_character(t->value.character);
+            case TOK_STRING:
+                return make_string(t->value.string);
             default:
                 error("unknown token type");
         }

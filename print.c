@@ -30,6 +30,8 @@ void bs_write(FILE *out, object *exp)
         } else {
             fprintf(out, "%c", exp->value.character);
         }
+    } else if (is_string(exp)) {
+        fprintf(out, "\"%s\"", exp->value.string);
     } else {
         error("unknown expression type");
     }

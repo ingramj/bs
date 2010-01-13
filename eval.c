@@ -28,7 +28,7 @@ static int is_self_evaluating(object *obj)
     }
 
     if (obj->type == NUMBER || obj->type == BOOLEAN ||
-            obj->type == CHARACTER)
+            obj->type == CHARACTER || obj->type == STRING)
     {
         return 1;
     } else {
