@@ -27,12 +27,14 @@ static int is_self_evaluating(object *obj)
         error("null object");
     }
 
-    if (obj->type == NUMBER || obj->type == BOOLEAN ||
-            obj->type == CHARACTER || obj->type == STRING)
-    {
-        return 1;
-    } else {
-        return 0;
-    }
+    // for now, we'll treat everything as being self-evaluating.
+    return 1;
+    //if (obj->type == NUMBER || obj->type == BOOLEAN ||
+    //        obj->type == CHARACTER || obj->type == STRING)
+    //{
+    //    return 1;
+    //} else {
+    //    return 0;
+    //}
 }
 
