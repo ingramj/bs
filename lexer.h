@@ -13,7 +13,10 @@ typedef enum {
     TOK_DONE,
     TOK_NUMBER,
     TOK_BOOLEAN,
-    TOK_CHARACTER
+    TOK_CHARACTER,
+    TOK_STRING,
+    TOK_LPAREN,
+    TOK_RPAREN,
 } token_type;
 
 typedef struct token {
@@ -21,12 +24,14 @@ typedef struct token {
         long number;
         int boolean;
         char character;
+        char *string;
     } value;
     struct token *next;
     token_type type;
 } token;
 
-token *get_token(FILE *in);
+token *get_token(void);
+void set_input_file(FILE *in);
 
 #endif
 

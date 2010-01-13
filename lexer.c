@@ -1,4 +1,4 @@
-/* A lexer for a Scheme-like language.
+/* Lexer for a Scheme-like language.
  *
  * Copyright (c) 2010 James E. Ingram
  * See the LICENSE file for terms of use.
@@ -9,52 +9,300 @@
 #include <string.h>
 #include <errno.h>
 #include <ctype.h>
-#include <assert.h>
 #include "gc.h"
 
 #include "lexer.h"
 #include "error.h"
 
- /* Overview:
-  *
-  * When get_token() is called, it returns the next token from the input
-  * stream. When no more tokens are available, a special DONE token is
-  * returned.
-  *
-  * Input is read in a line at a time, and the resulting tokens are stored
-  * in a queue until needed.
-  */
+/**** File handling and reading ****/
+static long read_line(char **bufptr);
 
+/**** Lexical analysis ****/
+static void tokenize_line(void);
+static int is_delim(char c);
+static token *lex_token(char const *start, char const **end);
+static int lex_number(char const *start, char const **end, long *value);
+static int lex_boolean(char const *start, char const **end, int *value);
+static int lex_character(char const *start, char const **end, char *value);
+static int lex_string(char const *start, char const **end, char **value);
 
+/**** Token allocation and queuing ****/
 static token *alloc_token(void);
-static token *add_token_to_queue(void);
-static token *get_token_from_queue(FILE *in);
+static void add_token_to_queue(token *t);
+static token *get_token_from_queue(void);
 static inline int queue_is_empty(void);
 
-static long read_line(char const **bufptr, FILE *in);
 
-static int peek(char const * const buffer);
-static void lex_input(FILE *in);
-static char const *lex_number(char const *buffer);
-static char const *lex_octothorpe(char const *buffer);
-static char const *lex_character(char const *buffer);
-
-
-/* Return the next token from the input stream. */
-token *get_token(FILE *in)
+/**** Public interface ****/
+token *get_token(void)
 {
-    return get_token_from_queue(in);
+    while (queue_is_empty()) {
+        tokenize_line();
+    }
+
+    return get_token_from_queue();
 }
 
 
-/**** Token allocation and queueing. ****/
+/**** File handling and reading ****/
+static FILE *input_file = NULL;
+
+
+void set_input_file(FILE *f)
+{
+    if (f == NULL) {
+        warn("null file pointer, defaulting to stdin");
+        input_file = stdin;
+    } else {
+        input_file = f;
+    }
+}
+
+
+/* Reads in a line of input, ended by a newline, null, or end of file.
+ *
+ * Takes the address of a pointer to const char, which is set to point
+ * to the resulting null-terminated string. Returns the number of
+ * characters read, or -1 on EOF.
+ */
+static long read_line(char **bufptr)
+{
+    if (input_file == NULL) {
+        set_input_file(stdin);
+    }
+
+    char *input_buffer = NULL;
+    size_t size = 128;
+    input_buffer = GC_REALLOC(input_buffer, size);
+    if (input_buffer == NULL) {
+        error("unable to allocate input buffer:");
+    }
+
+    int c = fgetc(input_file);
+    if (c == EOF) {
+        *bufptr = NULL;
+        return -1;
+    }
+
+    long bytes = 1;
+    char *pos = input_buffer;
+    while (c != EOF && c != '\0') {
+        // resize the input buffer, if necessary.
+        if (bytes > (long)(size - 1)) {
+            size += 128;
+            input_buffer = GC_REALLOC(input_buffer, size);
+            if (input_buffer == NULL) {
+                error("unable to allocate input buffer:");
+            }
+            pos = input_buffer + bytes - 1;
+        }
+
+        *pos++ = (char)c;
+        if (c == '\n') {
+            break;
+        }
+
+        c = fgetc(input_file);
+        bytes++;
+    }
+
+    *pos = '\0';
+
+    *bufptr = input_buffer;
+    return bytes;
+}
+
+
+/**** Lexical analysis ****/
+void tokenize_line(void)
+{
+    char *buffer;
+    long len = read_line(&buffer);
+
+    if (len < 0) {
+        add_token_to_queue(alloc_token());
+        return;
+    }
+
+    char const *pos = buffer;
+    char const *end = NULL;
+    token *t;
+    while (*pos != '\0') {
+        t = lex_token(pos, &end);
+        if (t == NULL) break;
+        add_token_to_queue(t);
+        pos = end;
+    }
+}
+
+
+static int is_delim(char c)
+{
+    return  isspace(c) || c == '\0' ||
+            c == '(' || c == ')' ||
+            c == '"';
+}
+
+
+/* Scan buffer for a token. Returns the first token in the buffer, or NULL if
+ * none are found. The second parameter is set to the address of the character
+ * just after the first token.
+ */
+static token *lex_token(char const *buffer, char const **end)
+{
+    while (isspace(*buffer)) {
+        buffer++;
+    }
+
+    if (*buffer == '\0') {
+        return NULL;
+    }
+
+    token *t = alloc_token();
+
+    if (*buffer == '(') {
+        t->type = TOK_LPAREN;
+        *end = buffer + 1;
+        return t;
+    } else if (*buffer == ')') {
+        t->type = TOK_RPAREN;
+        *end = buffer + 1;
+        return t;
+    } else if (lex_number(buffer, end, &t->value.number)) {
+        t->type = TOK_NUMBER;
+    } else if (lex_boolean(buffer, end, &t->value.boolean)) {
+        t->type = TOK_BOOLEAN;
+    } else if (lex_character(buffer, end, &t->value.character)) {
+        t->type = TOK_CHARACTER;
+    } else if (lex_string(buffer, end, &t->value.string)) {
+        t->type = TOK_STRING;
+    } else {
+        error("unable to create token from input");
+    }
+
+    if (!is_delim(**end)) {
+        error("trailing characters after token");
+    }
+
+    return t;
+}
+
+
+/* There is a lex_X function for each token type. They all return true if the
+ * string given as the first parameter matches, and false otherwise. The
+ * second parameter is used to return a pointer to the next character after
+ * the token that was recognized. If there was no match, it will equal start.
+ * Finally, if a match was found, its value is stored in the last parameter.
+ */
+static int lex_number(char const *start, char const **end, long *value)
+{
+    if (!isdigit(*start) && *start != '-') {
+        *end = start;
+        return 0;
+    }
+
+    errno = 0;
+    char *num_end;
+    long num = strtol(start, &num_end, 0);
+
+    if (num_end == start) {
+        return 0;
+    } else if (errno) {
+        error("unable to read number:");
+    }
+
+    *value = num;
+    *end = num_end;
+    return 1;
+}
+
+
+static int lex_boolean(char const *start, char const **end, int *value)
+{
+    if (*start != '#') {
+        *end = start;
+        return 0;
+    } else {
+        char next = *(start + 1);
+        if (next == 't' || next == 'T') {
+            *value = 1;
+        } else if (next == 'f' || next == 'F') {
+            *value = 0;
+        } else {
+            *end = start;
+            return 0;
+        }
+    }
+
+    *end = start + 2;
+    return 1;
+}
+
+
+static int lex_character(char const *start, char const **end, char *value)
+{
+    if (*start != '#' && *(start + 1) != '\\') {
+        *end = start;
+        return 0;
+    }
+
+    char const *pos = start + 2;
+    if (isspace(*pos)) {
+        *end = start;
+        return 0;
+    }
+
+
+    if (*pos == 's' && !is_delim(*(pos + 1))) {
+        if (strncmp(pos , "space", 4) == 0) {
+            *value = ' ';
+            *end = pos + 5;
+            return 1;
+        } else {
+            *end = start;
+            return 0;
+        }
+    } else if (*pos == 'n' && !is_delim(*(pos + 1))) {
+        if (strncmp((pos), "newline", 7) == 0) {
+            *value = '\n';
+            *end = pos + 7;
+            return 1;
+        } else {
+            *end = start;
+            return 0;
+        }
+    }
+
+    *value = *pos;
+    *end = start + 3;
+    return 1;
+}
+
+
+static int lex_string(char const *start, char const **end, char **value)
+{
+    if (*start != '"') {
+        *end = start;
+        return 0;
+    }
+    warn("strings not implemented yet");
+    start++;
+    while (*start++ != '"') {
+        if (*start == '\0') {
+            error("non-terminated string");
+        }
+    }
+    printf("\n");
+    *end = start;
+    static char *dummy_string = "this space reserved.";
+    *value = dummy_string;
+    return 1;
+}
+
+
+/**** Token allocation and queuing ****/
 static token *queue_front = NULL;
 static token *queue_back = NULL;
-
-static inline int queue_is_empty(void)
-{
-    return queue_front == NULL;
-}
 
 
 static token *alloc_token(void)
@@ -71,25 +319,23 @@ static token *alloc_token(void)
 }
 
 
-static token *add_token_to_queue(void)
+static void add_token_to_queue(token *t)
 {
-    token *nt = alloc_token();
-
     if (queue_is_empty()) {
-        queue_front = queue_back = nt;
+        queue_front = queue_back = t;
     } else {
-        queue_back->next = nt;
-        queue_back = nt;
+        queue_back->next = t;
+        queue_back = t;
     }
 
-    return queue_back;
+    t->next = NULL;
 }
 
 
-static token *get_token_from_queue(FILE *in)
+static token *get_token_from_queue(void)
 {
     while (queue_is_empty()) {
-        lex_input(in);
+        //lex_input();
     }
 
     token *t = queue_front;
@@ -99,187 +345,8 @@ static token *get_token_from_queue(FILE *in)
 }
 
 
-/**** Input reading and buffering. ****/
-
-/* Read a line of input, ending on a newline or null character. Returns
- * the number of characters read, or -1 on EOF. */
-static long read_line(char const **bufptr, FILE *in)
+static inline int queue_is_empty(void)
 {
-    if (in == NULL) {
-        error("null file pointer");
-    }
-
-    static char *input_buffer = NULL;
-    static size_t size = 128;
-    if (input_buffer == NULL) {
-        input_buffer = GC_REALLOC(input_buffer, size);
-        if (input_buffer == NULL) {
-            error("unable to allocate input buffer:");
-        }
-    }
-
-    int c = fgetc(in);
-    if (c == EOF) {
-        *bufptr = NULL;
-        return -1;
-    }
-
-    long bytes = 1;             // number of characters read.
-    char *p = input_buffer;     // our position in the buffer.
-    while (c != EOF && c != '\0') {
-        if (bytes > (long)(size - 1)) {
-            size = size + 128;
-            input_buffer = GC_REALLOC(input_buffer, size);
-            if (input_buffer == NULL) {
-                error("unable to allocate input buffer:");
-            }
-            // input_buffer may have moved, so reset p.
-            p = input_buffer + bytes - 1;
-        }
-
-        *p++ = (char) c;
-        if (c == '\n') {
-            break;
-        }
-
-        c = fgetc(in);
-        bytes++;
-    }
-
-    *p = '\0';
-
-    *bufptr = input_buffer;
-    return bytes;
-}
-
-
-/**** Lexical Analysis ****/
-
-static int peek(char const * const buffer)
-{
-    if (*buffer == '\0') {
-        return -1;
-    } else {
-        return *(buffer + 1);
-    }
-}
-
-
-static void lex_input(FILE *in)
-{
-    char const * buffer = NULL;
-    long len = read_line(&buffer, in);
-
-    if (len <= 0) {
-        token *t = add_token_to_queue();
-        t->type = TOK_DONE;
-        return;
-    }
-
-    char const * const end = buffer + len;
-
-    char const *p = buffer;
-    while (p < end) {
-        if (isspace(*p)) {
-            p++;
-            continue;
-        } else if (isdigit(*p) || *p == '-') {
-            p = lex_number(p);
-        } else if (*p == '#') {
-            p = lex_octothorpe(p);
-        } else {
-            error("unrecognized character.");
-        }
-        p++;
-    }
-}
-
-
-static char const *lex_number(char const *buffer)
-{
-    char *end;
-    errno = 0;
-    long num = strtol(buffer, &end, 0);
-
-    if (errno) {
-        error("unable to read number:");
-    } else if (buffer == end) {
-        error("expected a number, but was disappointed");
-    } else if (!isspace(*end) && *end != '\0') {
-        error("trailing characters after number");
-    }
-
-    token *t = add_token_to_queue();
-    t->type = TOK_NUMBER;
-    t->value.number = num;
-
-    return end;
-}
-
-
-// The function that sounds like a cartoon villain.
-static char const *lex_octothorpe(char const *buffer)
-{
-    int n = peek(buffer);
-    if (n <= 0) {
-        error("unexpected end of line");
-    }
-
-    if (n == '\\') {
-        return lex_character(buffer + 2);
-    } else if (n == 't' || n == 'T' || n == 'f' || n == 'F') {
-        if (!isspace(peek(buffer + 1))) {
-            error("trailing characters after boolean constant.");
-        }
-        token *t = add_token_to_queue();
-        t->type = TOK_BOOLEAN;
-        t->value.boolean = (n == 'f' || n == 'F') ? 0 : 1;
-        return buffer + 1;
-    } else {
-        error("expected a boolean constant, was disappointed");
-    }
-}
-
-
-static char const *lex_character(char const *buffer)
-{
-    if (*buffer == '\0' || isspace(*buffer)) {
-        error("incomplete character constant");
-    }
-
-    // TODO: Real Schemes support a much larger set of character constants.
-    if (!isalpha(*buffer)) {
-        error("expected an alphabetic character");
-    }
-
-    char val = *buffer;
-    switch(val) {
-        case 's':
-            if (peek(buffer) == 'p') {
-                if (strncmp(buffer, "space", 5) == 0) {
-                    val = ' ';
-                    buffer = buffer + 4;
-                }
-            }
-            break;
-        case 'n':
-            if (peek(buffer) == 'e') {
-                if (strncmp(buffer, "newline", 7) == 0) {
-                    val = '\n';
-                    buffer = buffer + 6;
-                }
-            }
-            break;
-    }
-
-    if (!isspace(peek(buffer)) && peek(buffer) != '\0') {
-        error("trailing characters after character constant");
-    }
-
-    token *t = add_token_to_queue();
-    t->type = TOK_CHARACTER;
-    t->value.character = val;
-
-    return buffer + 1;
+    return queue_front == NULL;
 }
 

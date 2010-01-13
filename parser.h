@@ -11,7 +11,7 @@
 
 #include "object.h"
 
-object *bs_read(FILE *in);
+object *bs_read(void);
 
 #define PARSER_H
 

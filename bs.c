@@ -20,11 +20,11 @@ int main(void)
 
     printf("REPL test. Press ctrl-d to quit.\n");
     printf("bs> ");
-    object *obj = bs_read(stdin);
+    object *obj = bs_read();
     while (obj) {
         bs_write(stdout, bs_eval(obj));
         printf("\nbs> ");
-        obj = bs_read(stdin);
+        obj = bs_read();
     }
 
     printf("\n");

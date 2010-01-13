@@ -15,9 +15,9 @@
 static object true_object = {.type = BOOLEAN, .value.boolean = 1};
 static object false_object = {.type = BOOLEAN, .value.boolean = 0};
 
-object *bs_read(FILE *in) 
+object *bs_read(void)
 {
-    token *t = get_token(in);
+    token *t = get_token();
 
     while (t->type != TOK_DONE) {
         switch (t->type) {
@@ -33,7 +33,7 @@ object *bs_read(FILE *in)
             default:
                 error("unknown token type");
         }
-        t = get_token(in);
+        t = get_token();
     }
 
     return NULL;
