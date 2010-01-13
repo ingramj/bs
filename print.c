@@ -10,6 +10,8 @@
 #include "object.h"
 #include "error.h"
 
+static void bs_write_string(FILE *out, object *exp);
+
 
 void bs_write(FILE *out, object *exp)
 {
@@ -31,9 +33,27 @@ void bs_write(FILE *out, object *exp)
             fprintf(out, "%c", exp->value.character);
         }
     } else if (is_string(exp)) {
-        fprintf(out, "\"%s\"", exp->value.string);
+        bs_write_string(out, exp);
     } else {
         error("unknown expression type");
+    }
+}
+
+
+void bs_write_string(FILE *out, object *exp)
+{
+    char *pos = exp->value.string;
+    while (*pos != '\0') {
+        if (*pos == '\n') {
+            fprintf(out, "\\n");
+        } else if (*pos == '"') {
+            fprintf(out, "\"");
+        } else if (*pos == '\\') {
+            fprintf(out, "\\\\");
+        } else {
+            fprintf(out, "%c", *pos);
+        }
+        pos++;
     }
 }
 

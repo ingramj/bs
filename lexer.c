@@ -252,7 +252,6 @@ static int lex_character(char const *start, char const **end, char *value)
         return 0;
     }
 
-
     if (*pos == 's' && !is_delim(*(pos + 1))) {
         if (strncmp(pos , "space", 4) == 0) {
             *value = ' ';
@@ -285,16 +284,50 @@ static int lex_string(char const *start, char const **end, char **value)
         *end = start;
         return 0;
     }
-    warn("strings not implemented yet");
-    start++;
-    while (*start++ != '"') {
-        if (*start == '\0') {
-            error("non-terminated string");
+
+    size_t size = 64;
+    char *buffer = GC_MALLOC(size);
+
+    char const *in_pos = start + 1;
+    char *out_pos = buffer;
+    size_t bytes = 0;
+
+    while (*in_pos != '"') {
+        if (*in_pos == '\0') {
+            error("unterminated string constant.");
         }
+
+        if (bytes > size - 1) {
+            size += 64;
+            buffer = GC_REALLOC(buffer, size);
+            if (buffer == NULL) {
+                error("unable to increase string buffer size:");
+            }
+            out_pos = buffer + bytes;
+        }
+
+        if (*in_pos == '\\') {
+            in_pos++;
+            if (*in_pos == 'n') {
+                *out_pos = '\n';
+            } else if (*in_pos == '"') {
+                *out_pos = '"';
+            } else if (*in_pos == '\\') {
+                *out_pos = '\\';
+            } else {
+                error("unrecognized escape sequence: \\%c", *out_pos);
+            }
+            out_pos++;
+            in_pos++;
+            continue;
+        }
+
+        *out_pos++ = *in_pos++;
+        bytes++;
     }
-    *end = start;
-    static char *dummy_string = "this space reserved.";
-    *value = dummy_string;
+
+    *value = buffer;
+    *end = in_pos + 1;
     return 1;
 }
 
