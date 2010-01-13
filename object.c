@@ -93,3 +93,9 @@ int is_string(object *obj)
     return obj->type == STRING;
 }
 
+
+int is_empty_list(object *obj)
+{
+    return obj->type == EMPTY_LIST;
+}
+

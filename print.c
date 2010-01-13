@@ -34,6 +34,8 @@ void bs_write(FILE *out, object *exp)
         }
     } else if (is_string(exp)) {
         bs_write_string(out, exp);
+    } else if (is_empty_list(exp)) {
+        fprintf(out, "()");
     } else {
         error("unknown expression type");
     }

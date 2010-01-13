@@ -11,7 +11,8 @@ typedef enum {
     NUMBER,
     BOOLEAN,
     CHARACTER,
-    STRING
+    STRING,
+    EMPTY_LIST
 } object_type;
 
 
@@ -38,5 +39,6 @@ int is_character(object *obj);
 object *make_string(char *value);
 int is_string(object *obj);
 
+int is_empty_list(object *obj);
 #endif
 

@@ -11,7 +11,7 @@
 #include "object.h"
 #include "error.h"
 
-
+static object empty_list = {.type = EMPTY_LIST };
 static object true_object = {.type = BOOLEAN, .value.boolean = 1};
 static object false_object = {.type = BOOLEAN, .value.boolean = 0};
 
@@ -32,6 +32,13 @@ object *bs_read(void)
                 return make_character(t->value.character);
             case TOK_STRING:
                 return make_string(t->value.string);
+            case TOK_LPAREN:
+                t = get_token();
+                if (t->type == TOK_RPAREN) {
+                    return &empty_list;
+                } else {
+                    error("non-empty lists are not implemented");
+                }
             default:
                 error("unknown token type");
         }
