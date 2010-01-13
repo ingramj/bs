@@ -20,7 +20,7 @@ void bs_write(FILE *out, object *exp)
     if (is_number(exp)) {
         fprintf(out, "%ld", exp->value.number);
     } else if (is_boolean(exp)) {
-        fprintf(out, "%c", is_false(exp) ? 'f' : 't');
+        fprintf(out, "#%c", is_false(exp) ? 'f' : 't');
     } else if (is_character(exp)) {
         fprintf(out, "#\\");
         if (exp->value.character == '\n') {
