@@ -42,12 +42,13 @@ void bs_write(FILE *out, object *exp)
 
 void bs_write_string(FILE *out, object *exp)
 {
+    fprintf(out, "\"");
     char *pos = exp->value.string;
     while (*pos != '\0') {
         if (*pos == '\n') {
             fprintf(out, "\\n");
         } else if (*pos == '"') {
-            fprintf(out, "\"");
+            fprintf(out, "\\\"");
         } else if (*pos == '\\') {
             fprintf(out, "\\\\");
         } else {
@@ -55,5 +56,6 @@ void bs_write_string(FILE *out, object *exp)
         }
         pos++;
     }
+    fprintf(out, "\"");
 }
 
