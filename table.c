@@ -49,6 +49,10 @@ object *insert_symbol(object *symbol)
         error("unable to allocate symbol table entry:");
     }
 
+    if (symbol_table[hashval] != NULL) {
+        info("hash collision while inserting symbol '%s'",
+                symbol->value.symbol);
+    }
     entry->symbol = symbol;
     entry->next = symbol_table[hashval];
     symbol_table[hashval] = entry;

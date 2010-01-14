@@ -18,6 +18,7 @@
 int main(int argc, char *argv[])
 {
     GC_INIT();
+    set_error_level(INFO);
 
     FILE *in = stdin;
     if (argc == 2) {
