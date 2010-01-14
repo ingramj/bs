@@ -70,10 +70,10 @@ void write_string(FILE *out, object *exp)
 
 static void write_pair(FILE *out, object *exp)
 {
-    bs_write(out, exp->value.pair.car);
+    bs_write(out, car(exp));
 
-    object *cdr_obj = exp->value.pair.cdr;
-    if (cdr_obj->type == PAIR) {
+    object *cdr_obj = cdr(exp);
+    if (is_pair(cdr_obj)) {
         fprintf(out, " ");
         write_pair(out, cdr_obj);
     } else if (is_empty_list(cdr_obj)) {

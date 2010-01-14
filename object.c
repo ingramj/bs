@@ -112,6 +112,46 @@ object *cons(object *obj_car, object *obj_cdr)
 }
 
 
+object *car(object *pair)
+{
+    if (pair->type != PAIR) {
+        error("not a pair");
+    }
+
+    return pair->value.pair.car;
+}
+
+
+void set_car(object *pair, object *obj)
+{
+    if (pair->type != PAIR) {
+        error("not a pair");
+    }
+
+    pair->value.pair.car = obj;
+}
+
+
+object *cdr(object *pair)
+{
+    if (pair->type != PAIR) {
+        error("not a pair");
+    }
+
+    return pair->value.pair.cdr;
+}
+
+
+void set_cdr(object *pair, object *obj)
+{
+    if (pair->type != PAIR) {
+        error("not a pair");
+    }
+
+    pair->value.pair.cdr = obj;
+}
+
+
 int is_pair(object *obj)
 {
     return obj->type == PAIR;

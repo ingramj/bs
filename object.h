@@ -50,7 +50,10 @@ int is_empty_list(object *obj);
 
 object *cons(object *obj_car, object *obj_cdr);
 int is_pair(object *obj);
-
+object *car(object *pair);
+void set_car(object *pair, object *obj);
+object *cdr(object *pair);
+void set_cdr(object *pair, object *obj);
 
 object *make_symbol(char const *name);
 int is_symbol(object *obj);
