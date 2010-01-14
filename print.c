@@ -15,8 +15,9 @@ static void write_pair(FILE *out, object *exp);
 
 void bs_write(FILE *out, object *exp)
 {
-    if (!exp) {
-        error("unable to write expression");
+    if (exp == NULL) {
+        // don't write anything for null expressions.
+        return;
     }
 
     if (is_number(exp)) {
@@ -42,7 +43,7 @@ void bs_write(FILE *out, object *exp)
         fprintf(out, "(");
         write_pair(out, exp);
         fprintf(out, ")");
-    }else {
+    } else {
         error("unknown expression type");
     }
 }

@@ -174,6 +174,10 @@ static token *lex_token(char const *buffer, char const **end)
     } else if (*buffer == '.') {
         t->type = TOK_DOT;
         *end = buffer + 1;
+    } else if (*buffer == '\'') {
+        t->type = TOK_QUOTE;
+        *end = buffer + 1;
+        return t;
     } else if (lex_number(buffer, end, &t->value.number)) {
         t->type = TOK_NUMBER;
     } else if (lex_boolean(buffer, end, &t->value.boolean)) {

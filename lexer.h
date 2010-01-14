@@ -18,7 +18,8 @@ typedef enum {
     TOK_SYMBOL,
     TOK_LPAREN,
     TOK_RPAREN,
-    TOK_DOT
+    TOK_DOT,
+    TOK_QUOTE
 } token_type;
 
 typedef struct token {

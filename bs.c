@@ -13,12 +13,21 @@
 #include "lexer.h"
 #include "eval.h"
 #include "print.h"
+#include "table.h"
+
+
+void init_symbol_table(void)
+{
+    make_symbol("quote");
+}
 
 
 int main(int argc, char *argv[])
 {
     GC_INIT();
     set_error_level(INFO);
+
+    init_symbol_table();
 
     FILE *in = stdin;
     if (argc == 2) {

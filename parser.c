@@ -9,6 +9,7 @@
 #include "parser.h"
 #include "lexer.h"
 #include "object.h"
+#include "table.h"
 #include "error.h"
 
 static object *read_pair(void);
@@ -38,6 +39,9 @@ object *bs_read(void)
                 return make_symbol(t->value.string);
             case TOK_LPAREN:
                 return read_pair();
+            case TOK_QUOTE:
+                return cons(lookup_symbol("quote"),
+                        cons(bs_read(), &empty_list));
             case TOK_RPAREN:
                 error("unexpected closing parenthesis");
             case TOK_DOT:
