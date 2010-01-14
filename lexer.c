@@ -25,6 +25,9 @@ static int lex_number(char const *start, char const **end, long *value);
 static int lex_boolean(char const *start, char const **end, int *value);
 static int lex_character(char const *start, char const **end, char *value);
 static int lex_string(char const *start, char const **end, char **value);
+static int is_initial(char c);
+static int is_subsequent(char c);
+static int lex_symbol(char const *start, char const **end, char **value);
 
 /**** Token allocation and queuing ****/
 static token *alloc_token(void);
@@ -179,6 +182,8 @@ static token *lex_token(char const *buffer, char const **end)
         t->type = TOK_CHARACTER;
     } else if (lex_string(buffer, end, &t->value.string)) {
         t->type = TOK_STRING;
+    } else if (lex_symbol(buffer, end, &t->value.symbol)) {
+        t->type = TOK_SYMBOL;
     } else {
         error("unable to create token from input");
     }
@@ -329,8 +334,59 @@ static int lex_string(char const *start, char const **end, char **value)
         bytes++;
     }
 
+    *out_pos = '\0';
     *value = buffer;
     *end = in_pos + 1;
+    return 1;
+}
+
+
+static int is_initial(char c)
+{
+    return isalpha(c) || c == '!' || c == '$' || c == '%' || c == '&' ||
+        c == '*' || c == '/' || c == ':' || c == '<' || c == '>' ||
+        c == '?' || c == '^' || c == '_' || c == '~';
+}
+
+
+static int is_subsequent(char c)
+{
+    return is_initial(c) || isdigit(c) || c == '+' ||
+        c == '-' || c == '.' || c == '@';
+}
+
+
+static int lex_symbol(char const *start, char const **end, char **value)
+{
+    if (!(is_initial(*start) || ((*start == '+' ||  *start == '-') &&
+                is_delim(*(start+1))))) {
+        *end = start;
+        return 0;
+    }
+
+    size_t size = 64;
+    char *buffer = GC_MALLOC(size);
+
+    char const *in_pos = start;
+    char *out_pos = buffer;
+    size_t bytes = 0;
+
+    while (is_subsequent(*in_pos)) {
+        if (bytes > size - 1) {
+            size += 64;
+            buffer = GC_REALLOC(buffer, size);
+            if (buffer == NULL) {
+                error("unable to increase symbol buffer size:");
+            }
+            out_pos = buffer + bytes;
+        }
+        *out_pos++ = *in_pos++;
+        bytes++;
+    }
+
+    *out_pos = '\0';
+    *value = buffer;
+    *end = in_pos;
     return 1;
 }
 

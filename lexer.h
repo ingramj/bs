@@ -15,6 +15,7 @@ typedef enum {
     TOK_BOOLEAN,
     TOK_CHARACTER,
     TOK_STRING,
+    TOK_SYMBOL,
     TOK_LPAREN,
     TOK_RPAREN,
     TOK_DOT
@@ -26,6 +27,7 @@ typedef struct token {
         int boolean;
         char character;
         char *string;
+        char *symbol;
     } value;
     struct token *next;
     token_type type;

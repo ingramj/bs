@@ -13,7 +13,8 @@ typedef enum {
     CHARACTER,
     STRING,
     EMPTY_LIST,
-    PAIR
+    PAIR,
+    SYMBOL
 } object_type;
 
 
@@ -22,7 +23,8 @@ typedef struct object {
         long number;
         int boolean;
         char character;
-        char *string;
+        char const *string;
+        char const *symbol;
         struct {
             struct object *car;
             struct object *cdr;
@@ -48,5 +50,10 @@ int is_empty_list(object *obj);
 
 object *cons(object *obj_car, object *obj_cdr);
 int is_pair(object *obj);
+
+
+object *make_symbol(char const *name);
+int is_symbol(object *obj);
+
 #endif
 

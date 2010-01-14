@@ -34,6 +34,8 @@ object *bs_read(void)
                 return make_character(t->value.character);
             case TOK_STRING:
                 return make_string(t->value.string);
+            case TOK_SYMBOL:
+                return make_symbol(t->value.string);
             case TOK_LPAREN:
                 return read_pair();
             case TOK_RPAREN:

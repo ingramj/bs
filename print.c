@@ -34,6 +34,8 @@ void bs_write(FILE *out, object *exp)
         }
     } else if (is_string(exp)) {
         write_string(out, exp);
+    } else if (is_symbol(exp)) {
+        fprintf(out, "%s", exp->value.symbol);
     } else if (is_empty_list(exp)) {
         fprintf(out, "()");
     } else if (is_pair(exp)) {
@@ -49,7 +51,7 @@ void bs_write(FILE *out, object *exp)
 void write_string(FILE *out, object *exp)
 {
     fprintf(out, "\"");
-    char *pos = exp->value.string;
+    char const *pos = exp->value.string;
     while (*pos != '\0') {
         if (*pos == '\n') {
             fprintf(out, "\\n");

@@ -7,6 +7,7 @@
 #include "gc.h"
 
 #include "object.h"
+#include "table.h"
 #include "error.h"
 #include "lexer.h"
 
@@ -105,7 +106,7 @@ object *cons(object *obj_car, object *obj_cdr)
     object *p = alloc_object();
     p->type = PAIR;
     p->value.pair.car = obj_car;
-    p->value. pair.cdr = obj_cdr;
+    p->value.pair.cdr = obj_cdr;
 
     return p;
 }
@@ -114,5 +115,25 @@ object *cons(object *obj_car, object *obj_cdr)
 int is_pair(object *obj)
 {
     return obj->type == PAIR;
+}
+
+
+object *make_symbol(char const *name)
+{
+    object *sym = lookup_symbol(name);
+    if (sym == NULL) {
+        sym = alloc_object();
+        sym->type = SYMBOL;
+        sym->value.symbol = name;
+        return insert_symbol(sym);
+    } else {
+        return sym;
+    }
+}
+
+
+int is_symbol(object *obj)
+{
+    return obj->type == SYMBOL;
 }
 
