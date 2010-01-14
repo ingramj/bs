@@ -11,6 +11,8 @@
 #include "object.h"
 #include "error.h"
 
+static object *read_pair(void);
+
 static object empty_list = {.type = EMPTY_LIST };
 static object true_object = {.type = BOOLEAN, .value.boolean = 1};
 static object false_object = {.type = BOOLEAN, .value.boolean = 0};
@@ -33,14 +35,13 @@ object *bs_read(void)
             case TOK_STRING:
                 return make_string(t->value.string);
             case TOK_LPAREN:
-                t = get_token();
-                if (t->type == TOK_RPAREN) {
-                    return &empty_list;
-                } else {
-                    error("non-empty lists are not implemented");
-                }
+                return read_pair();
+            case TOK_RPAREN:
+                error("unexpected closing parenthesis");
+            case TOK_DOT:
+                error("dot outside of pair");
             default:
-                error("unknown token type");
+                error("unknown token type %d", t->type);
         }
         t = get_token();
     }
@@ -48,3 +49,31 @@ object *bs_read(void)
     return NULL;
 }
 
+
+static object *read_pair(void)
+{
+    token *t = get_token();
+    if (t->type == TOK_RPAREN) {
+        return &empty_list;
+    }
+
+    push_back_token(t);
+
+    object *car_obj = bs_read();
+    object *cdr_obj;
+
+    t = get_token();
+    if (t->type == TOK_DOT) {
+        cdr_obj = bs_read();
+
+        t = get_token();
+        if (t->type != TOK_RPAREN) {
+            error("pair is missing a closing parenthesis");
+        }
+        return cons(car_obj, cdr_obj);
+    } else {
+        push_back_token(t);
+        cdr_obj = read_pair();
+        return cons(car_obj, cdr_obj);
+    }
+}

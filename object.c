@@ -99,3 +99,20 @@ int is_empty_list(object *obj)
     return obj->type == EMPTY_LIST;
 }
 
+
+object *cons(object *obj_car, object *obj_cdr)
+{
+    object *p = alloc_object();
+    p->type = PAIR;
+    p->value.pair.car = obj_car;
+    p->value. pair.cdr = obj_cdr;
+
+    return p;
+}
+
+
+int is_pair(object *obj)
+{
+    return obj->type == PAIR;
+}
+

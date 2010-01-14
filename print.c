@@ -10,8 +10,8 @@
 #include "object.h"
 #include "error.h"
 
-static void bs_write_string(FILE *out, object *exp);
-
+static void write_string(FILE *out, object *exp);
+static void write_pair(FILE *out, object *exp);
 
 void bs_write(FILE *out, object *exp)
 {
@@ -33,16 +33,20 @@ void bs_write(FILE *out, object *exp)
             fprintf(out, "%c", exp->value.character);
         }
     } else if (is_string(exp)) {
-        bs_write_string(out, exp);
+        write_string(out, exp);
     } else if (is_empty_list(exp)) {
         fprintf(out, "()");
-    } else {
+    } else if (is_pair(exp)) {
+        fprintf(out, "(");
+        write_pair(out, exp);
+        fprintf(out, ")");
+    }else {
         error("unknown expression type");
     }
 }
 
 
-void bs_write_string(FILE *out, object *exp)
+void write_string(FILE *out, object *exp)
 {
     fprintf(out, "\"");
     char *pos = exp->value.string;
@@ -59,5 +63,22 @@ void bs_write_string(FILE *out, object *exp)
         pos++;
     }
     fprintf(out, "\"");
+}
+
+
+static void write_pair(FILE *out, object *exp)
+{
+    bs_write(out, exp->value.pair.car);
+
+    object *cdr_obj = exp->value.pair.cdr;
+    if (cdr_obj->type == PAIR) {
+        fprintf(out, " ");
+        write_pair(out, cdr_obj);
+    } else if (is_empty_list(cdr_obj)) {
+        return;
+    } else {
+        fprintf(out, " . ");
+        bs_write(out, cdr_obj);
+    }
 }
 

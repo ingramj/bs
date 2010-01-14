@@ -17,6 +17,7 @@ typedef enum {
     TOK_STRING,
     TOK_LPAREN,
     TOK_RPAREN,
+    TOK_DOT
 } token_type;
 
 typedef struct token {
@@ -31,6 +32,7 @@ typedef struct token {
 } token;
 
 token *get_token(void);
+void push_back_token(token *t);
 void set_input_file(FILE *in);
 
 #endif

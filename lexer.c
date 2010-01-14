@@ -168,6 +168,9 @@ static token *lex_token(char const *buffer, char const **end)
         t->type = TOK_RPAREN;
         *end = buffer + 1;
         return t;
+    } else if (*buffer == '.') {
+        t->type = TOK_DOT;
+        *end = buffer + 1;
     } else if (lex_number(buffer, end, &t->value.number)) {
         t->type = TOK_NUMBER;
     } else if (lex_boolean(buffer, end, &t->value.boolean)) {
@@ -376,6 +379,16 @@ static token *get_token_from_queue(void)
     return t;
 }
 
+
+void push_back_token(token *t)
+{
+    if (t == NULL) {
+        error("null token");
+    }
+
+    t->next = queue_front;
+    queue_front = t;
+}
 
 static inline int queue_is_empty(void)
 {
