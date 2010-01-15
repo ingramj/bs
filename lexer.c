@@ -157,7 +157,7 @@ static token *lex_token(char const *buffer, char const **end)
         buffer++;
     }
 
-    if (*buffer == '\0') {
+    if (*buffer == '\0' || *buffer == ';') {
         return NULL;
     }
 
