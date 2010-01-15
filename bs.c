@@ -19,6 +19,9 @@
 void init_symbol_table(void)
 {
     make_symbol("quote");
+    make_symbol("set!");
+    make_symbol("define");
+    make_symbol("ok");
 }
 
 
@@ -28,6 +31,7 @@ int main(int argc, char *argv[])
     set_error_level(INFO);
 
     init_symbol_table();
+    init_environments();
 
     FILE *in = stdin;
     if (argc == 2) {
@@ -48,7 +52,7 @@ int main(int argc, char *argv[])
     }
     object *obj = bs_read();
     while (obj) {
-        bs_write(stdout, bs_eval(obj));
+        bs_write(stdout, bs_eval(obj, get_global_environment()));
         printf("\n");
         if (in == stdin) printf("bs> ");
         obj = bs_read();

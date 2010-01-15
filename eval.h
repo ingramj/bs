@@ -9,7 +9,9 @@
 
 #include "object.h"
 
-object *bs_eval(object *exp);
+object *bs_eval(object *exp, object *env);
+object *get_global_environment(void);
+void init_environments(void);
 
 #define EVAL_H
 
