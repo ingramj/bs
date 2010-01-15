@@ -37,6 +37,7 @@ typedef struct object {
 object *make_number(long value);
 int is_number(object *obj);
 
+object *get_boolean(int value);
 int is_boolean(object *obj);
 int is_false(object *obj);
 
@@ -46,6 +47,7 @@ int is_character(object *obj);
 object *make_string(char *value);
 int is_string(object *obj);
 
+object *get_empty_list(void);
 int is_empty_list(object *obj);
 
 object *cons(object *obj_car, object *obj_cdr);

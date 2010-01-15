@@ -14,10 +14,6 @@
 
 static object *read_pair(void);
 
-static object empty_list = {.type = EMPTY_LIST };
-static object true_object = {.type = BOOLEAN, .value.boolean = 1};
-static object false_object = {.type = BOOLEAN, .value.boolean = 0};
-
 object *bs_read(void)
 {
     token *t = get_token();
@@ -27,10 +23,7 @@ object *bs_read(void)
             case TOK_NUMBER:
                 return make_number(t->value.number);
             case TOK_BOOLEAN:
-                if (t->value.boolean == 0)
-                    return &false_object;
-                else
-                    return &true_object;
+                return get_boolean(t->value.boolean);
             case TOK_CHARACTER:
                 return make_character(t->value.character);
             case TOK_STRING:
@@ -41,7 +34,7 @@ object *bs_read(void)
                 return read_pair();
             case TOK_QUOTE:
                 return cons(lookup_symbol("quote"),
-                        cons(bs_read(), &empty_list));
+                        cons(bs_read(), get_empty_list()));
             case TOK_RPAREN:
                 error("unexpected closing parenthesis");
             case TOK_DOT:
@@ -60,7 +53,7 @@ static object *read_pair(void)
 {
     token *t = get_token();
     if (t->type == TOK_RPAREN) {
-        return &empty_list;
+        return get_empty_list();
     }
 
     push_back_token(t);

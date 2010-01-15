@@ -15,6 +15,11 @@
 static object *alloc_object(void);
 
 
+static object empty_list = {.type = EMPTY_LIST };
+static object true_object = {.type = BOOLEAN, .value.boolean = 1};
+static object false_object = {.type = BOOLEAN, .value.boolean = 0};
+
+
 static object *alloc_object(void)
 {
     object *obj = GC_MALLOC(sizeof(object));
@@ -42,6 +47,12 @@ int is_number(object *obj)
         error("null object");
     }
     return obj->type == NUMBER;
+}
+
+
+object *get_boolean(int value)
+{
+    return value == 0 ? &false_object : &true_object;
 }
 
 
@@ -92,6 +103,12 @@ object *make_string(char *value)
 int is_string(object *obj)
 {
     return obj->type == STRING;
+}
+
+
+object *get_empty_list(void)
+{
+    return &empty_list;
 }
 
 
