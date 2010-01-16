@@ -43,6 +43,8 @@ void bs_write(FILE *out, object *exp)
         fprintf(out, "(");
         write_pair(out, exp);
         fprintf(out, ")");
+    } else if (is_primitive(exp)) {
+        fprintf(out, "#<procedure>");
     } else {
         error("unknown expression type");
     }

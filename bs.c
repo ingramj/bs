@@ -12,6 +12,7 @@
 #include "parser.h"
 #include "lexer.h"
 #include "eval.h"
+#include "primitive.h"
 #include "print.h"
 #include "table.h"
 
@@ -22,6 +23,7 @@ void init_system(void)
     set_error_level(INFO);
     init_special_forms();
     init_environments();
+    init_primitives();
 }
 
 

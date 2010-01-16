@@ -33,13 +33,19 @@ static inline object *if_predicate(object *exp);
 static inline object *if_consequent(object *exp);
 static inline object *if_alternate(object *exp);
 
+/**** Procedure applications ****/
+static inline int is_application(object *exp);
+static inline object *operator(object *exp);
+static inline object *operands(object *exp);
+static object *eval_argument_list(object *args, object *env);
+static object *eval_application(object *exp, object *env);
+
 /**** Environments ****/
 static inline object *enclosing_environment(object *env);
 static object *extend_environment(object *vars, object *vals,
         object *base_env);
 static object *lookup_variable_value(object *var, object *env);
 static void set_variable_value(object *var, object *val, object *env);
-static void define_variable(object *var, object *val, object *env);
 
 /**** Frames *****/
 static inline object *first_frame(object *env);
@@ -173,6 +179,44 @@ static inline object *if_alternate(object *exp)
 }
 
 
+/**** Procedure applications ****/
+static inline int is_application(object *exp)
+{
+    return is_pair(exp);
+}
+
+
+static inline object *operator(object *exp)
+{
+    return car(exp);
+}
+
+
+static inline object *operands(object *exp)
+{
+    return cdr(exp);
+}
+
+
+static object *eval_argument_list(object *args, object *env)
+{
+    if (is_empty_list(args)) {
+        return get_empty_list();
+    } else {
+        return cons(bs_eval(car(args), env),
+                eval_argument_list(cdr(args), env));
+    }
+}
+
+
+static object *eval_application(object *exp, object *env)
+{
+    object *procedure = bs_eval(operator(exp), env);
+    object *arguments = eval_argument_list(operands(exp), env);
+    return (procedure->value.primitive)(arguments);
+}
+
+
 /**** Environments ****/
 static object *empty_environment = NULL;
 static object *global_environment = NULL;
@@ -252,7 +296,7 @@ static void set_variable_value(object *var, object *val, object *env)
 }
 
 
-static void define_variable(object *var, object *val, object *env)
+void define_variable(object *var, object *val, object *env)
 {
     if (!is_symbol(var)) {
         if (is_pair(var)) {
@@ -345,6 +389,8 @@ tailcall:
             exp = if_consequent(exp);
         }
         goto tailcall;
+    } else if (is_application(exp)) {
+        return eval_application(exp, env);
     } else {
         error("unable to evaluate expression");
     }

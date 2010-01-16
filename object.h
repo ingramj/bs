@@ -12,9 +12,10 @@ typedef enum {
     BOOLEAN,
     CHARACTER,
     STRING,
+    SYMBOL,
     EMPTY_LIST,
     PAIR,
-    SYMBOL
+    PRIMITIVE
 } object_type;
 
 
@@ -29,6 +30,7 @@ typedef struct object {
             struct object *car;
             struct object *cdr;
         } pair;
+        struct object *(*primitive)(struct object *arguments);
     } value;
     object_type type;
 } object;
@@ -47,6 +49,9 @@ int is_character(object *obj);
 object *make_string(char *value);
 int is_string(object *obj);
 
+object *make_symbol(char const *name);
+int is_symbol(object *obj);
+
 object *get_empty_list(void);
 int is_empty_list(object *obj);
 
@@ -57,8 +62,8 @@ void set_car(object *pair, object *obj);
 object *cdr(object *pair);
 void set_cdr(object *pair, object *obj);
 
-object *make_symbol(char const *name);
-int is_symbol(object *obj);
+object *make_primitive(object *(*fn)(object *args));
+int is_primitive(object *obj);
 
 #endif
 

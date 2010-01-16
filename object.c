@@ -43,9 +43,6 @@ object *make_number(long value)
 
 int is_number(object *obj)
 {
-    if (obj == NULL) {
-        error("null object");
-    }
     return obj->type == NUMBER;
 }
 
@@ -58,18 +55,12 @@ object *get_boolean(int value)
 
 int is_boolean(object *obj)
 {
-    if (obj == NULL) {
-        error("null object");
-    }
     return obj->type == BOOLEAN;
 }
 
 
 int is_false(object *obj)
 {
-    if (obj == NULL) {
-        error("null object");
-    }
     return (obj->type == BOOLEAN && obj->value.boolean == 0);
 }
 
@@ -194,3 +185,18 @@ int is_symbol(object *obj)
     return obj->type == SYMBOL;
 }
 
+
+object *make_primitive(object *(*fn)(object *args))
+{
+    object *prim = alloc_object();
+    prim->type = PRIMITIVE;
+    prim->value.primitive = fn;
+
+    return prim;
+}
+
+
+int is_primitive(object *obj)
+{
+    return obj->type == PRIMITIVE;
+}

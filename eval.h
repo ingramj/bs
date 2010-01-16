@@ -10,6 +10,7 @@
 #include "object.h"
 
 object *bs_eval(object *exp, object *env);
+void define_variable(object *var, object *val, object *env);
 object *get_global_environment(void);
 void init_environments(void);
 void init_special_forms(void);
