@@ -22,6 +22,7 @@ void init_symbol_table(void)
     make_symbol("set!");
     make_symbol("define");
     make_symbol("ok");
+    make_symbol("if");
 }
 
 

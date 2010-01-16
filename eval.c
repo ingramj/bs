@@ -27,6 +27,12 @@ static inline object *definition_variable(object *exp);
 static inline object *definition_value(object *exp);
 static object *eval_definition(object *exp, object *env);
 
+/**** Conditional expressions ****/
+static inline int is_if(object *exp);
+static inline object *if_predicate(object *exp);
+static inline object *if_consequent(object *exp);
+static inline object *if_alternate(object *exp);
+
 /**** Environments ****/
 static inline object *enclosing_environment(object *env);
 static object *extend_environment(object *vars, object *vals,
@@ -46,6 +52,8 @@ static void add_binding_to_frame(object *var, object *val, object *frame);
 /**** Scheme's eval procedure. ****/
 object *bs_eval(object *exp, object *env)
 {
+
+tailcall:
     if (is_self_evaluating(exp)) {
         return exp;
     } else if (is_variable(exp)) {
@@ -56,6 +64,13 @@ object *bs_eval(object *exp, object *env)
         return eval_assignment(exp, env);
     } else if (is_definition(exp)) {
         return eval_definition(exp, env);
+    } else if (is_if(exp)) {
+        if (is_false(bs_eval(if_predicate(exp), env))) {
+            exp = if_alternate(exp);
+        } else {
+            exp = if_consequent(exp);
+        }
+        goto tailcall;
     } else {
         error("unable to evaluate expression");
     }
@@ -152,6 +167,37 @@ static object *eval_definition(object *exp, object *env)
             bs_eval(definition_value(exp), env),
             env);
     return lookup_symbol("ok");
+}
+
+
+/**** Conditional expressions ****/
+static inline int is_if(object *exp)
+{
+    return is_tagged_list(exp, lookup_symbol("if"));
+}
+
+
+static inline object *if_predicate(object *exp)
+{
+    return car(cdr(exp));
+}
+
+
+static inline object *if_consequent(object *exp)
+{
+    return car(cdr(cdr(exp)));
+}
+
+
+static inline object *if_alternate(object *exp)
+{
+    object *alt_branch = cdr(cdr(cdr(exp)));
+    if (is_empty_list(alt_branch)) {
+        // What to return in this situation is unspecified by the standard.
+        return get_boolean(0);
+    } else {
+        return car(alt_branch);
+    }
 }
 
 
