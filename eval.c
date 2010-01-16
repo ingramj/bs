@@ -49,34 +49,6 @@ static inline object *frame_values(object *frame);
 static void add_binding_to_frame(object *var, object *val, object *frame);
 
 
-/**** Scheme's eval procedure. ****/
-object *bs_eval(object *exp, object *env)
-{
-
-tailcall:
-    if (is_self_evaluating(exp)) {
-        return exp;
-    } else if (is_variable(exp)) {
-        return lookup_variable_value(exp, env);
-    } else if (is_quoted(exp)) {
-        return car(cdr(exp));
-    } else if (is_assignment(exp)) {
-        return eval_assignment(exp, env);
-    } else if (is_definition(exp)) {
-        return eval_definition(exp, env);
-    } else if (is_if(exp)) {
-        if (is_false(bs_eval(if_predicate(exp), env))) {
-            exp = if_alternate(exp);
-        } else {
-            exp = if_consequent(exp);
-        }
-        goto tailcall;
-    } else {
-        error("unable to evaluate expression");
-    }
-}
-
-
 static int is_self_evaluating(object *obj)
 {
     if (obj == NULL) {
@@ -330,5 +302,33 @@ static void add_binding_to_frame(object *var, object *val, object *frame)
 {
     set_car(frame, cons(var, car(frame)));
     set_cdr(frame, cons(val, cdr(frame)));
+}
+
+
+/**** Scheme's eval procedure. ****/
+object *bs_eval(object *exp, object *env)
+{
+
+tailcall:
+    if (is_self_evaluating(exp)) {
+        return exp;
+    } else if (is_variable(exp)) {
+        return lookup_variable_value(exp, env);
+    } else if (is_quoted(exp)) {
+        return car(cdr(exp));
+    } else if (is_assignment(exp)) {
+        return eval_assignment(exp, env);
+    } else if (is_definition(exp)) {
+        return eval_definition(exp, env);
+    } else if (is_if(exp)) {
+        if (is_false(bs_eval(if_predicate(exp), env))) {
+            exp = if_alternate(exp);
+        } else {
+            exp = if_consequent(exp);
+        }
+        goto tailcall;
+    } else {
+        error("unable to evaluate expression");
+    }
 }
 
