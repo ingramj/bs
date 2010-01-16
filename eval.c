@@ -254,6 +254,14 @@ static void set_variable_value(object *var, object *val, object *env)
 
 static void define_variable(object *var, object *val, object *env)
 {
+    if (!is_symbol(var)) {
+        if (is_pair(var)) {
+            error("definition of procedures is not implemented");
+        } else {
+            error("define variable must be a symbol");
+        }
+    }
+
     object *frame = first_frame(env);
     object *vars = frame_variables(frame);
     object *vals = frame_values(frame);
@@ -306,6 +314,16 @@ static void add_binding_to_frame(object *var, object *val, object *frame)
 
 
 /**** Scheme's eval procedure. ****/
+void init_special_forms(void)
+{
+    make_symbol("quote");
+    make_symbol("set!");
+    make_symbol("define");
+    make_symbol("ok");  // not a special form, but returned by define and set!
+    make_symbol("if");
+}
+
+
 object *bs_eval(object *exp, object *env)
 {
 

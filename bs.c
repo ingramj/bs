@@ -16,23 +16,18 @@
 #include "table.h"
 
 
-void init_symbol_table(void)
+void init_system(void)
 {
-    make_symbol("quote");
-    make_symbol("set!");
-    make_symbol("define");
-    make_symbol("ok");
-    make_symbol("if");
+    GC_INIT();
+    set_error_level(INFO);
+    init_special_forms();
+    init_environments();
 }
 
 
 int main(int argc, char *argv[])
 {
-    GC_INIT();
-    set_error_level(INFO);
-
-    init_symbol_table();
-    init_environments();
+    init_system();
 
     FILE *in = stdin;
     if (argc == 2) {
