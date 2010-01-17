@@ -362,8 +362,14 @@ static int is_subsequent(char c)
 
 static int lex_symbol(char const *start, char const **end, char **value)
 {
-    if (!(is_initial(*start) || ((*start == '+' ||  *start == '-') &&
-                is_delim(*(start+1))))) {
+    if (*start == '=' && is_delim(*(start + 1))) {
+        *value = "=";
+        *end = start + 1;
+        return 1;
+    }
+
+    if (!(is_initial(*start) ||
+                ((*start == '+' ||  *start == '-') && is_delim(*(start+1))))) {
         *end = start;
         return 0;
     }

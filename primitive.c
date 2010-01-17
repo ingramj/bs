@@ -9,23 +9,34 @@
 #include "object.h"
 #include "eval.h"
 
+#define defprim(name, proc) \
+    define_variable(make_symbol(name), \
+            make_primitive(proc), \
+            get_global_environment())
 
-object *add_proc(object *arguments)
+static object *add_proc(object *arguments)
 {
     long result = 0;
 
     while (!is_empty_list(arguments)) {
-        result += (car(arguments))->value.number;
+        if (!is_number(car(arguments))) {
+            error("+ called with non-numeric arguments");
+        }
+        result += car(arguments)->value.number;
         arguments = cdr(arguments);
     }
     return make_number(result);
 }
 
 
-object *sub_proc(object *arguments)
+static object *sub_proc(object *arguments)
 {
     if (is_empty_list(arguments)) {
         error("- requires at least one argument");
+    }
+
+    if (!is_number(car(arguments))) {
+        error("- called with non-numeric arguments");
     }
 
     long result = car(arguments)->value.number;
@@ -35,6 +46,9 @@ object *sub_proc(object *arguments)
     }
 
     while (!is_empty_list(arguments)) {
+        if (!is_number(car(arguments))) {
+            error("- called with non-numeric arguments");
+        }
         result -= (car(arguments))->value.number;
         arguments = cdr(arguments);
     }
@@ -42,14 +56,46 @@ object *sub_proc(object *arguments)
 }
 
 
+static object *mult_proc(object *arguments)
+{
+    long result = 1;
+
+    while (!is_empty_list(arguments)) {
+        if (!is_number(car(arguments))) {
+            error("* called with non-numeric arguments");
+        }
+        result *= (car(arguments))->value.number;
+        arguments = cdr(arguments);
+    }
+    return make_number(result);
+}
+
+
+static object *num_eq_proc(object *arguments)
+{
+    if (is_empty_list(arguments) || is_empty_list(cdr(arguments))) {
+        error("= requires at least two arguments");
+    }
+
+    while (!is_empty_list(arguments) && ! is_empty_list(cdr(arguments))) {
+        if (!is_number(car(arguments)) || !is_number(car(cdr(arguments)))) {
+            error("= called with non-numeric arguments");
+        }
+        long n1 = car(arguments)->value.number;
+        long n2 = car(cdr(arguments))->value.number;
+        if ((n1 - n2) != 0) {
+            return get_boolean(0);
+        }
+        arguments = cdr(arguments);
+    }
+    return get_boolean(1);
+}
+
 void init_primitives(void)
 {
-    define_variable(make_symbol("+"),
-            make_primitive(add_proc),
-            get_global_environment());
-
-    define_variable(make_symbol("-"),
-            make_primitive(sub_proc),
-            get_global_environment());
+    defprim("+", add_proc);
+    defprim("-", sub_proc);
+    defprim("*", mult_proc);
+    defprim("=", num_eq_proc);
 }
 
