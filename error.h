@@ -17,17 +17,17 @@ typedef enum {
 
 
 #define error(...) do { \
-    eprintf(ERROR, __FILE__, __LINE__, __FUNCTION__, __VA_ARGS__); \
+    eprintf(ERROR, __FILE__, __LINE__, __func__, __VA_ARGS__); \
     exit(EXIT_FAILURE); \
 } while (0)
 
 
 #define warn(...) \
-    eprintf(WARNING, __FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
+    eprintf(WARNING, __FILE__, __LINE__, __func__, __VA_ARGS__)
 
 
 #define info(...) \
-    eprintf(INFO, __FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
+    eprintf(INFO, __FILE__, __LINE__, __func__, __VA_ARGS__)
 
 
 void set_error_level(error_level level);
