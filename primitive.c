@@ -44,6 +44,86 @@ static object *eq_proc(object *arguments)
 }
 
 
+static object *is_null_proc(object *arguments)
+{
+    if (is_empty_list(arguments) || !is_empty_list(cdr(arguments))) {
+        error("null? requires a single argument");
+    }
+
+    return get_boolean(is_empty_list(car(arguments)));
+}
+
+
+static object *is_boolean_proc(object *arguments)
+{
+    if (is_empty_list(arguments) || !is_empty_list(cdr(arguments))) {
+        error("boolean? requires a single argument");
+    }
+
+    return get_boolean(is_boolean(car(arguments)));
+}
+
+
+static object *is_symbol_proc(object *arguments)
+{
+    if (is_empty_list(arguments) || !is_empty_list(cdr(arguments))) {
+        error("symbol? requires a single argument");
+    }
+
+    return get_boolean(is_symbol(car(arguments)));
+}
+
+
+static object *is_integer_proc(object *arguments)
+{
+    if (is_empty_list(arguments) || !is_empty_list(cdr(arguments))) {
+        error("integer? requires a single argument");
+    }
+
+    return get_boolean(is_number(car(arguments)));
+}
+
+
+static object *is_char_proc(object *arguments)
+{
+    if (is_empty_list(arguments) || !is_empty_list(cdr(arguments))) {
+        error("char? requires a single argument");
+    }
+
+    return get_boolean(is_character(car(arguments)));
+}
+
+
+static object *is_string_proc(object *arguments)
+{
+    if (is_empty_list(arguments) || !is_empty_list(cdr(arguments))) {
+        error("string? requires a single argument");
+    }
+
+    return get_boolean(is_string(car(arguments)));
+}
+
+
+static object *is_pair_proc(object *arguments)
+{
+    if (is_empty_list(arguments) || !is_empty_list(cdr(arguments))) {
+        error("pair? requires a single argument");
+    }
+
+    return get_boolean(is_pair(car(arguments)));
+}
+
+
+static object *is_procedure_proc(object *arguments)
+{
+    if (is_empty_list(arguments) || !is_empty_list(cdr(arguments))) {
+        error("procedure? requires a single argument");
+    }
+
+    return get_boolean(is_primitive(car(arguments)));
+}
+
+
 static object *length_proc(object *arguments)
 {
     if (is_empty_list(arguments) || !is_empty_list(cdr(arguments))) {
@@ -141,6 +221,14 @@ static object *num_eq_proc(object *arguments)
 void init_primitives(void)
 {
     defprim("eq?", eq_proc);
+    defprim("null?", is_null_proc);
+    defprim("boolean?", is_boolean_proc);
+    defprim("symbol?", is_symbol_proc);
+    defprim("integer?", is_integer_proc);
+    defprim("char?", is_char_proc);
+    defprim("string?", is_string_proc);
+    defprim("pair?", is_pair_proc);
+    defprim("procedure?", is_procedure_proc);
     defprim("length", length_proc);
     defprim("+", add_proc);
     defprim("-", sub_proc);

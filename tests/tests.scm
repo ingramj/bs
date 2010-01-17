@@ -72,4 +72,62 @@ eq?                                     ; #<procedure>
 (eq? #f #f)                             ; #t
 (eq? #t #f)                             ; #f
 (eq? (eq? #t #f) #f)                    ; #t
+null?                                   ; #<procedure>
+(null? '())                             ; #t
+(null? '(    ))                         ; #t
+(null? '(()))                           ; #f
+(null? 'a)                              ; #f
+(null? '(1 2 3))                        ; #f
+boolean?                                ; #<procedure>
+(boolean? #t)                           ; #t
+(boolean? #f)                           ; #t
+(boolean? '(#t))                        ; #f
+(boolean? #\t)                          ; #f
+(boolean? (= 1 1))                      ; #t
+(boolean? (= 2 1))                      ; #t
+(boolean? "a string")                   ; #f
+symbol?                                 ; #<procedure>
+(symbol? 'a)                            ; #t
+(symbol? 1)                             ; #f
+(symbol? '(a))                          ; #f
+(symbol? '+)                            ; #t
+(symbol? '*)                            ; #t
+(symbol? '!$%&*/:<>?^_~+-.@)            ; #t
+integer?                                ; #<procedure>
+(integer? 0)                            ; #t
+(integer? 1231132585)                   ; #t
+(integer? -9423)                        ; #t
+(integer? 0x800)                        ; #t
+(integer? #\g)                          ; #f
+(integer? #t)                           ; #f
+(integer? '(100))                       ; #f
+(integer? "not an integer")             ; #f
+(integer? (* 13 12))                    ; #t
+char?                                   ; #<procedure>
+(char? #\r)                             ; #t
+(char? (if (char? #\newline) #\space))  ; #t
+(char? 'a)                              ; #f
+(char? "j")                             ; #f
+(char? '(#\a))                          ; #f
+(char? 0x10)                            ; #f
+string?                                 ; #<procedure>
+(string? "hello world")                 ; #t
+(string? "with\nnewlines")              ; #t
+(string? '(#\a #\space #\l #\i #\s #\t)); #f
+(string? 'a-symbol-is-not-a-string)     ; #f
+(string? '())                           ; #f
+pair?                                   ; #<procedure>
+(pair? '(a . b))                        ; #t
+(pair? '(a b c))                        ; #t
+(pair? '(a))                            ; #t
+(pair? '(a . (b . (c . ()))))           ; #t
+(pair? 'a)                              ; #f
+(pair? '())                             ; #f
+(pair? 100)                             ; #f
+(pair? "pair")                          ; #f
+procedure?                              ; #<procedure>
+(procedure? +)                          ; #t
+(procedure? '+)                         ; #f
+(procedure? "+")                        ; #f
+(procedure? procedure?)                 ; #t
 
