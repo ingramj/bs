@@ -51,4 +51,9 @@ b                                       ; 150
 (= 5 3)                                 ; #f
 (if (= (* 2 2) (+ 2 2)) 'a 'b)          ; a
 (if (= 6 (- 15 10)) 'a 'b)              ; b
+length                                  ; #<procedure>
+(length '())                            ; 0
+(length '(1))                           ; 1
+(length '(a b c))                       ; 3
+(length '(+ 1 2 (- 3 4)))               ; 4
 

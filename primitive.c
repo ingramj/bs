@@ -14,6 +14,24 @@
             make_primitive(proc), \
             get_global_environment())
 
+
+static object *length_proc(object *arguments)
+{
+    if (!is_empty_list(cdr(arguments))) {
+        error("length requires a single argument, which is a list");
+    }
+
+    long result = 0;
+    arguments = car(arguments);
+    while (!is_empty_list(arguments)) {
+        result++;
+        arguments = cdr(arguments);
+    }
+
+    return make_number(result);
+}
+
+
 static object *add_proc(object *arguments)
 {
     long result = 0;
@@ -93,6 +111,7 @@ static object *num_eq_proc(object *arguments)
 
 void init_primitives(void)
 {
+    defprim("length", length_proc);
     defprim("+", add_proc);
     defprim("-", sub_proc);
     defprim("*", mult_proc);
