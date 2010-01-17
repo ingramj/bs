@@ -4,6 +4,8 @@
  * See the LICENSE file for terms of use.
  */
 
+#include <string.h>
+
 #include "primitive.h"
 #include "error.h"
 #include "object.h"
@@ -13,6 +15,33 @@
     define_variable(make_symbol(name), \
             make_primitive(proc), \
             get_global_environment())
+
+
+static object *eq_proc(object *arguments)
+{
+    if (is_empty_list(arguments) || !is_empty_list(cdr(cdr(arguments)))) {
+        error("eq? requires exactly two arguments");
+    }
+
+    object *o1 = car(arguments);
+    object *o2 = car(cdr(arguments));
+
+    if (o1->type != o2->type) {
+        return get_boolean(0);
+    }
+
+    switch (o1->type) {
+        case NUMBER:
+            return get_boolean(o1->value.number == o2->value.number);
+        case CHARACTER:
+            return get_boolean(o1->value.character == o2->value.character);
+        case STRING:
+            return get_boolean(
+                    strcmp(o1->value.string, o2->value.string) == 0);
+        default:
+            return get_boolean(o1 == o2);
+    }
+}
 
 
 static object *length_proc(object *arguments)
@@ -111,6 +140,7 @@ static object *num_eq_proc(object *arguments)
 
 void init_primitives(void)
 {
+    defprim("eq?", eq_proc);
     defprim("length", length_proc);
     defprim("+", add_proc);
     defprim("-", sub_proc);

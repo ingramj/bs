@@ -56,4 +56,20 @@ length                                  ; #<procedure>
 (length '(1))                           ; 1
 (length '(a b c))                       ; 3
 (length '(+ 1 2 (- 3 4)))               ; 4
+eq?                                     ; #<procedure>
+(eq? 'a 'a)                             ; #t
+(eq? #\a #\a)                           ; #t
+(eq? "abcde" "abcde")                   ; #t
+(eq? 'a 'b)                             ; #f
+(eq? #\a #\newline)                     ; #f
+(eq? "this" "that")                     ; #f
+(eq? '(a) '(a))                         ; #f
+(eq? (+ 1 3) (+ 2 2))                   ; #t
+(eq? '() '())                           ; #t
+(eq? + +)                               ; #t
+(eq? + -)                               ; #f
+(eq? #t #t)                             ; #t
+(eq? #f #f)                             ; #t
+(eq? #t #f)                             ; #f
+(eq? (eq? #t #f) #f)                    ; #t
 
