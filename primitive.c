@@ -17,8 +17,8 @@
 
 static object *length_proc(object *arguments)
 {
-    if (!is_empty_list(cdr(arguments))) {
-        error("length requires a single argument, which is a list");
+    if (is_empty_list(arguments) || !is_empty_list(cdr(arguments))) {
+        error("length requires a single list as an argument");
     }
 
     long result = 0;
