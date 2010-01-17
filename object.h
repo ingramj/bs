@@ -7,6 +7,8 @@
 #ifndef OBJECT_H
 #define OBJECT_H
 
+#include "error.h"
+
 typedef enum {
     NUMBER,
     BOOLEAN,
@@ -37,33 +39,56 @@ typedef struct object {
 
 
 object *make_number(long value);
-int is_number(object *obj);
+inline int is_number(object *obj) { return obj->type == NUMBER; }
 
 object *get_boolean(int value);
-int is_boolean(object *obj);
 int is_false(object *obj);
+inline int is_boolean(object *obj) { return obj->type == BOOLEAN; }
 
 object *make_character(char value);
-int is_character(object *obj);
+inline int is_character(object *obj) { return obj->type == CHARACTER; }
 
 object *make_string(char *value);
-int is_string(object *obj);
+inline int is_string(object *obj) { return obj->type == STRING; }
 
 object *make_symbol(char const *name);
-int is_symbol(object *obj);
+inline int is_symbol(object *obj) { return obj->type == SYMBOL; }
 
 object *get_empty_list(void);
-int is_empty_list(object *obj);
+inline int is_empty_list(object *obj) { return obj->type == EMPTY_LIST; }
+
 
 object *cons(object *obj_car, object *obj_cdr);
-int is_pair(object *obj);
-object *car(object *pair);
-void set_car(object *pair, object *obj);
-object *cdr(object *pair);
-void set_cdr(object *pair, object *obj);
+
+inline int is_pair(object *obj) { return obj->type == PAIR; }
+
+inline object *car(object *pair)
+{
+    if (pair->type != PAIR) error("not a pair");
+    return pair->value.pair.car;
+}
+
+inline void set_car(object *pair, object *obj)
+{
+    if (pair->type != PAIR) error("not a pair");
+    pair->value.pair.car = obj;
+}
+
+inline object *cdr(object *pair)
+{
+    if (pair->type != PAIR) error("not a pair");
+    return pair->value.pair.cdr;
+}
+
+inline void set_cdr(object *pair, object *obj)
+{
+    if (pair->type != PAIR) error("not a pair");
+    pair->value.pair.cdr = obj;
+}
+
 
 object *make_primitive(object *(*fn)(object *args));
-int is_primitive(object *obj);
+inline int is_primitive(object *obj) { return obj->type == PRIMITIVE; }
 
 #endif
 

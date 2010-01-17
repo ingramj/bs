@@ -11,9 +11,20 @@
 #include "error.h"
 #include "lexer.h"
 
+extern int is_number(object *obj);
+extern int is_boolean(object *obj);
+extern int is_character(object *obj);
+extern int is_string(object *obj);
+extern int is_symbol(object *obj);
+extern int is_empty_list(object *obj);
+extern int is_pair(object *obj);
+extern object *car(object *pair);
+extern void set_car(object *pair, object *obj);
+extern object *cdr(object *pair);
+extern void set_cdr(object *pair, object *obj);
+extern int is_primitive(object *obj);
 
 static object *alloc_object(void);
-
 
 static object empty_list = {.type = EMPTY_LIST };
 static object true_object = {.type = BOOLEAN, .value.boolean = 1};
@@ -41,21 +52,9 @@ object *make_number(long value)
 }
 
 
-int is_number(object *obj)
-{
-    return obj->type == NUMBER;
-}
-
-
 object *get_boolean(int value)
 {
     return value == 0 ? &false_object : &true_object;
-}
-
-
-int is_boolean(object *obj)
-{
-    return obj->type == BOOLEAN;
 }
 
 
@@ -75,12 +74,6 @@ object *make_character(char value)
 }
 
 
-int is_character(object *obj)
-{
-    return obj->type == CHARACTER;
-}
-
-
 object *make_string(char *value)
 {
     object *s = alloc_object();
@@ -91,21 +84,9 @@ object *make_string(char *value)
 }
 
 
-int is_string(object *obj)
-{
-    return obj->type == STRING;
-}
-
-
 object *get_empty_list(void)
 {
     return &empty_list;
-}
-
-
-int is_empty_list(object *obj)
-{
-    return obj->type == EMPTY_LIST;
 }
 
 
@@ -117,52 +98,6 @@ object *cons(object *obj_car, object *obj_cdr)
     p->value.pair.cdr = obj_cdr;
 
     return p;
-}
-
-
-object *car(object *pair)
-{
-    if (pair->type != PAIR) {
-        error("not a pair");
-    }
-
-    return pair->value.pair.car;
-}
-
-
-void set_car(object *pair, object *obj)
-{
-    if (pair->type != PAIR) {
-        error("not a pair");
-    }
-
-    pair->value.pair.car = obj;
-}
-
-
-object *cdr(object *pair)
-{
-    if (pair->type != PAIR) {
-        error("not a pair");
-    }
-
-    return pair->value.pair.cdr;
-}
-
-
-void set_cdr(object *pair, object *obj)
-{
-    if (pair->type != PAIR) {
-        error("not a pair");
-    }
-
-    pair->value.pair.cdr = obj;
-}
-
-
-int is_pair(object *obj)
-{
-    return obj->type == PAIR;
 }
 
 
@@ -180,12 +115,6 @@ object *make_symbol(char const *name)
 }
 
 
-int is_symbol(object *obj)
-{
-    return obj->type == SYMBOL;
-}
-
-
 object *make_primitive(object *(*fn)(object *args))
 {
     object *prim = alloc_object();
@@ -195,8 +124,3 @@ object *make_primitive(object *(*fn)(object *args))
     return prim;
 }
 
-
-int is_primitive(object *obj)
-{
-    return obj->type == PRIMITIVE;
-}
