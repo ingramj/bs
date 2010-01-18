@@ -46,6 +46,17 @@ b                                       ; 150
 (*)                                     ; 1
 (* 3)                                   ; 3
 (* 3 9)                                 ; 27
+quotient                                ; #<procedure>
+(quotient 4 3)                          ; 1
+(quotient 3 4)                          ; 0
+(quotient -10 4)                        ; -2
+(quotient -65 -3)                       ; 21
+remainder                               ; #<procedure>
+(remainder 4 3)                         ; 1
+(remainder 3 4)                         ; 3
+(remainder -10 4)                       ; -2
+(remainder -65 -3)                      ; -2
+(= -4 (+ (* 3 (quotient -4 3)) (remainder -4 3)))  ; #t
 (= 0 0)                                 ; #t
 (= (+ 1 3) 4)                           ; #t
 (= 5 3)                                 ; #f

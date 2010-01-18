@@ -5,6 +5,7 @@
  */
 
 #include <string.h>
+#include <stdlib.h>
 
 #include "primitive.h"
 #include "error.h"
@@ -183,6 +184,36 @@ static object *mult_proc(object *arguments)
 }
 
 
+static object *quotient_proc(object *arguments)
+{
+    require_exactly_two(arguments, "quotient");
+    object *n1 = car(arguments);
+    object *n2 = car(cdr(arguments));
+    require_number(n1, "quotient");
+    require_number(n2, "quotient");
+    if (n2->value.number == 0) {
+        error("divide by zero");
+    }
+    ldiv_t d = ldiv(n1->value.number, n2->value.number);
+    return make_number(d.quot);
+}
+
+
+static object *remainder_proc(object *arguments)
+{
+    require_exactly_two(arguments, "remainder");
+    object *n1 = car(arguments);
+    object *n2 = car(cdr(arguments));
+    require_number(n1, "remainder");
+    require_number(n2, "remainder");
+    if (n2->value.number == 0) {
+        error("divide by zero");
+    }
+    ldiv_t d = ldiv(n1->value.number, n2->value.number);
+    return make_number(d.rem);
+}
+
+
 static object *num_eq_proc(object *arguments)
 {
     require_at_least_two(arguments, "=");
@@ -280,6 +311,8 @@ void init_primitives(void)
     defprim("+", add_proc);
     defprim("-", sub_proc);
     defprim("*", mult_proc);
+    defprim("quotient", quotient_proc);
+    defprim("remainder", remainder_proc);
     defprim("=", num_eq_proc);
     defprim("cons", cons_proc);
     defprim("car", car_proc);
