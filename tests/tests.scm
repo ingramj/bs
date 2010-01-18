@@ -147,4 +147,20 @@ cdr                                     ; #<procedure>
 (cdr '((a b c) d e f))                  ; (d e f)
 (cdr (cons 'a '(b c d)))                ; (b c d)
 (car (cdr '(a b c d e)))                ; b
+set-car!                                ; #<procedure>
+(set-car! '(a b c) 'h)                  ; ok
+(define l '(a b c))                     ; ok
+(set-car! l 'h)                         ; ok
+(car l)                                 ; h
+(define l2 '(1 2 3))                    ; ok
+(set-car! l2 '(a b c))                  ; ok
+(car l2)                                ; (a b c)
+set-cdr!                                ; #<procedure>
+(set-cdr! '(a b c) 'h)                  ; ok
+(define l '(a b c))                     ; ok
+(set-cdr! l 'h)                         ; ok
+(cdr l)                                 ; h
+(define l2 '(1 2 3))                    ; ok
+(set-cdr! l2 '(a b c))                  ; ok
+(cdr l2)                                ; (a b c)
 

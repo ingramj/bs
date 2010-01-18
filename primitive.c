@@ -10,6 +10,7 @@
 #include "error.h"
 #include "object.h"
 #include "eval.h"
+#include "table.h"
 
 #define defprim(name, proc) \
     define_variable(make_symbol(name), \
@@ -240,6 +241,18 @@ static object *car_proc(object *arguments)
 }
 
 
+static object *set_car_proc(object *arguments)
+{
+    if (is_empty_list(arguments) || !is_empty_list(cdr(cdr(arguments))) ||
+            !is_pair(car(arguments))) {
+        error("set-car requires a pair or list, and a second argument");
+    }
+
+    set_car(car(arguments), car(cdr(arguments)));
+    return lookup_symbol("ok");
+}
+
+
 static object *cdr_proc(object *arguments)
 {
     if (is_empty_list(arguments) || !is_empty_list(cdr(arguments)) ||
@@ -248,6 +261,18 @@ static object *cdr_proc(object *arguments)
     }
 
     return cdr(car(arguments));
+}
+
+
+static object *set_cdr_proc(object *arguments)
+{
+    if (is_empty_list(arguments) || !is_empty_list(cdr(cdr(arguments))) ||
+            !is_pair(car(arguments))) {
+        error("set-car requires a pair or list, and a second argument");
+    }
+
+    set_cdr(car(arguments), car(cdr(arguments)));
+    return lookup_symbol("ok");
 }
 
 
@@ -269,6 +294,8 @@ void init_primitives(void)
     defprim("=", num_eq_proc);
     defprim("cons", cons_proc);
     defprim("car", car_proc);
+    defprim("set-car!", set_car_proc);
     defprim("cdr", cdr_proc);
+    defprim("set-cdr!", set_cdr_proc);
 }
 
