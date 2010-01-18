@@ -41,6 +41,10 @@
     }
 
 
+#define require_number(arg, name) \
+    if (!is_number(arg)) { error(name " called with non-numeric argument"); }
+
+
 static object *eq_proc(object *arguments)
 {
     require_exactly_two(arguments, "eq?");
@@ -155,9 +159,7 @@ static object *add_proc(object *arguments)
 static object *sub_proc(object *arguments)
 {
     require_at_least_one(arguments, "-");
-    if (!is_number(car(arguments))) {
-        error("- called with non-numeric arguments");
-    }
+    require_number(car(arguments), "-");
 
     long result = car(arguments)->value.number;
     arguments = cdr(arguments);
@@ -166,9 +168,7 @@ static object *sub_proc(object *arguments)
     }
 
     while (!is_empty_list(arguments)) {
-        if (!is_number(car(arguments))) {
-            error("- called with non-numeric arguments");
-        }
+        require_number(car(arguments), "-");
         result -= (car(arguments))->value.number;
         arguments = cdr(arguments);
     }
@@ -181,9 +181,7 @@ static object *mult_proc(object *arguments)
     long result = 1;
 
     while (!is_empty_list(arguments)) {
-        if (!is_number(car(arguments))) {
-            error("* called with non-numeric arguments");
-        }
+        require_number(car(arguments), "*");
         result *= (car(arguments))->value.number;
         arguments = cdr(arguments);
     }
@@ -196,9 +194,8 @@ static object *num_eq_proc(object *arguments)
     require_at_least_two(arguments, "=");
 
     while (!is_empty_list(arguments) && ! is_empty_list(cdr(arguments))) {
-        if (!is_number(car(arguments)) || !is_number(car(cdr(arguments)))) {
-            error("= called with non-numeric arguments");
-        }
+        require_number(car(arguments), "=");
+        require_number(car(cdr(arguments)), "=");
         long n1 = car(arguments)->value.number;
         long n2 = car(cdr(arguments))->value.number;
         if ((n1 - n2) != 0) {
