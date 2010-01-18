@@ -6,6 +6,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <limits.h>
 
 #include "primitive.h"
 #include "error.h"
@@ -338,6 +339,31 @@ static object *list_proc(object *arguments)
 }
 
 
+static object *char_to_integer_proc(object *arguments)
+{
+    require_exactly_one(arguments, "char->integer");
+    if (!is_character(car(arguments))) {
+        error("char->integer requires a character as an argument");
+    }
+    char value = car(arguments)->value.character;
+    return make_number(value);
+}
+
+
+static object *integer_to_char_proc(object *arguments)
+{
+    require_exactly_one(arguments, "integer->char");
+    require_number(car(arguments), "integer->char");
+
+    long value = car(arguments)->value.number;
+    if (value > CHAR_MAX || value < CHAR_MIN) {
+        error("integer out of range for conversion to char");
+    }
+
+    return make_character((char) value);
+}
+
+
 void init_primitives(void)
 {
     defprim("eq?", eq_proc);
@@ -365,5 +391,7 @@ void init_primitives(void)
     defprim("set-cdr!", set_cdr_proc);
     defprim("length", length_proc);
     defprim("list", list_proc);
+    defprim("char->integer", char_to_integer_proc);
+    defprim("integer->char", integer_to_char_proc);
 }
 

@@ -201,4 +201,12 @@ list                                    ; #<procedure>
 (list 'a 'b 'c)                         ; (a b c)
 (list)                                  ; ()
 (list (+ 1 2) (+ 3 4) (+ 5 6))          ; (3 7 11)
+char->integer                           ; #<procedure>
+(char->integer #\a)                     ; 97
+(char->integer #\newline)               ; 10
+integer->char                           ; #<procedure>
+(integer->char 122)                     ; #\z
+(integer->char 47)                      ; #\/
+(integer->char (char->integer #\space)) ; #\space
+(char->integer (integer->char 9))       ; 9
 

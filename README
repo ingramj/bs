@@ -50,6 +50,8 @@ Procedures:
     set-cdr!
     length
     list
+    char->integer
+    integer->char
 
 There is no lambda yet, but there will be soon.
 
