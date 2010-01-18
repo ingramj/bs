@@ -133,21 +133,6 @@ static object *is_procedure_proc(object *arguments)
 }
 
 
-static object *length_proc(object *arguments)
-{
-    require_exactly_one(arguments, "length");
-
-    long result = 0;
-    arguments = car(arguments);
-    while (!is_empty_list(arguments)) {
-        result++;
-        arguments = cdr(arguments);
-    }
-
-    return make_number(result);
-}
-
-
 static object *add_proc(object *arguments)
 {
     long result = 0;
@@ -266,6 +251,29 @@ static object *set_cdr_proc(object *arguments)
 }
 
 
+static object *length_proc(object *arguments)
+{
+    require_exactly_one(arguments, "length");
+
+    arguments = car(arguments);
+
+    if (is_empty_list(arguments)) {
+        return make_number(0);
+    }
+
+    long result = 0;
+    while (is_pair(arguments)) {
+        result++;
+        if (is_empty_list(cdr(arguments))) {
+            return make_number(result);
+        }
+        arguments = cdr(arguments);
+    }
+
+    error("length requires a proper list as an argument");
+}
+
+
 void init_primitives(void)
 {
     defprim("eq?", eq_proc);
@@ -278,7 +286,6 @@ void init_primitives(void)
     defprim("pair?", is_pair_proc);
     defprim("list?", is_list_proc);
     defprim("procedure?", is_procedure_proc);
-    defprim("length", length_proc);
     defprim("+", add_proc);
     defprim("-", sub_proc);
     defprim("*", mult_proc);
@@ -288,5 +295,6 @@ void init_primitives(void)
     defprim("set-car!", set_car_proc);
     defprim("cdr", cdr_proc);
     defprim("set-cdr!", set_cdr_proc);
+    defprim("length", length_proc);
 }
 

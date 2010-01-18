@@ -14,12 +14,10 @@
 #
 # Hacked together in about 10 minutes, and it shows.
 
-if [ ! -x ../bs ] ; then
-    echo Rebuilding bs
-    pushd .. > /dev/null
-    scons -s
-    popd > /dev/null
-fi
+echo "Rebuilding bs (if needed)"
+pushd .. > /dev/null
+scons -s
+popd > /dev/null
 
 echo Extracting expected results
 awk 'BEGIN { FS = "; " } { print $2 }' < tests.scm > expected
