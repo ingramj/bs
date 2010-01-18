@@ -38,7 +38,11 @@ Procedures:
     +
     -
     *
+    quotient
+    remainder
     =
+    <
+    >
     cons
     car
     set-car!

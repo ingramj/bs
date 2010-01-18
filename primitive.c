@@ -218,12 +218,48 @@ static object *num_eq_proc(object *arguments)
 {
     require_at_least_two(arguments, "=");
 
-    while (!is_empty_list(arguments) && ! is_empty_list(cdr(arguments))) {
-        require_number(car(arguments), "=");
-        require_number(car(cdr(arguments)), "=");
-        long n1 = car(arguments)->value.number;
-        long n2 = car(cdr(arguments))->value.number;
-        if ((n1 - n2) != 0) {
+    while (!is_empty_list(arguments) && !is_empty_list(cdr(arguments))) {
+        object *n1 = car(arguments);
+        object *n2 = car(cdr(arguments));
+        require_number(n1, "=");
+        require_number(n2, "=");
+        if (n1->value.number != n2->value.number) {
+            return get_boolean(0);
+        }
+        arguments = cdr(arguments);
+    }
+    return get_boolean(1);
+}
+
+
+static object *num_lt_proc(object *arguments)
+{
+    require_at_least_two(arguments, "<");
+
+    while (!is_empty_list(arguments) && !is_empty_list(cdr(arguments))) {
+        object *n1 = car(arguments);
+        object *n2 = car(cdr(arguments));
+        require_number(n1, "<");
+        require_number(n2, "<");
+        if (n1->value.number >= n2->value.number) {
+            return get_boolean(0);
+        }
+        arguments = cdr(arguments);
+    }
+    return get_boolean(1);
+}
+
+
+static object *num_gt_proc(object *arguments)
+{
+    require_at_least_two(arguments, ">");
+
+    while (!is_empty_list(arguments) && !is_empty_list(cdr(arguments))) {
+        object *n1 = car(arguments);
+        object *n2 = car(cdr(arguments));
+        require_number(n1, ">");
+        require_number(n2, ">");
+        if (n1->value.number <= n2->value.number) {
             return get_boolean(0);
         }
         arguments = cdr(arguments);
@@ -314,6 +350,8 @@ void init_primitives(void)
     defprim("quotient", quotient_proc);
     defprim("remainder", remainder_proc);
     defprim("=", num_eq_proc);
+    defprim("<", num_lt_proc);
+    defprim(">", num_gt_proc);
     defprim("cons", cons_proc);
     defprim("car", car_proc);
     defprim("set-car!", set_car_proc);

@@ -62,11 +62,20 @@ remainder                               ; #<procedure>
 (= 5 3)                                 ; #f
 (if (= (* 2 2) (+ 2 2)) 'a 'b)          ; a
 (if (= 6 (- 15 10)) 'a 'b)              ; b
-length                                  ; #<procedure>
-(length '())                            ; 0
-(length '(1))                           ; 1
-(length '(a b c))                       ; 3
-(length '(+ 1 2 (- 3 4)))               ; 4
+<                                       ; #<procedure>
+(< 1 2)                                 ; #t
+(< 1 1)                                 ; #f
+(< 2 1)                                 ; #f
+(< 1 2 3 4)                             ; #t
+(< 1 2 4 3)                             ; #f
+(< -10 0)                               ; #t
+>                                       ; #<procedure>
+(> 1 2)                                 ; #f
+(> 1 1)                                 ; #f
+(> 2 1)                                 ; #t
+(> 4 3 2 1)                             ; #t
+(> 4 3 1 2)                             ; #f
+(> 0 -10)                               ; #t
 eq?                                     ; #<procedure>
 (eq? 'a 'a)                             ; #t
 (eq? #\a #\a)                           ; #t
@@ -136,6 +145,14 @@ pair?                                   ; #<procedure>
 (pair? '())                             ; #f
 (pair? 100)                             ; #f
 (pair? "pair")                          ; #f
+list?                                   ; #<procedure>
+(list? 'a)                              ; #f
+(list? '(a))                            ; #t
+(list? '(1 2 3 4 5 6))                  ; #t
+(list? '())                             ; #t
+(list? '((a b c) (1 2 3)))              ; #t
+(list? '(1 . a))                        ; #f
+(list? '(1 . (2 . (3 . ()))))           ; #t
 procedure?                              ; #<procedure>
 (procedure? +)                          ; #t
 (procedure? '+)                         ; #f
@@ -173,13 +190,10 @@ set-cdr!                                ; #<procedure>
 (cdr l)                                 ; h
 (define l2 '(1 2 3))                    ; ok
 (set-cdr! l2 '(a b c))                  ; ok
+length                                  ; #<procedure>
+(length '())                            ; 0
+(length '(1))                           ; 1
+(length '(a b c))                       ; 3
+(length '(+ 1 2 (- 3 4)))               ; 4
 (cdr l2)                                ; (a b c)
-list?                                   ; #<procedure>
-(list? 'a)                              ; #f
-(list? '(a))                            ; #t
-(list? '(1 2 3 4 5 6))                  ; #t
-(list? '())                             ; #t
-(list? '((a b c) (1 2 3)))              ; #t
-(list? '(1 . a))                        ; #f
-(list? '(1 . (2 . (3 . ()))))           ; #t
 
