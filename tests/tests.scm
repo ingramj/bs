@@ -130,4 +130,21 @@ procedure?                              ; #<procedure>
 (procedure? '+)                         ; #f
 (procedure? "+")                        ; #f
 (procedure? procedure?)                 ; #t
+cons                                    ; #<procedure>
+(cons 'a 'b)                            ; (a . b)
+(cons 'a (cons 'b 'c))                  ; (a b . c)
+(cons 'a (cons 'b (cons 'c '())))       ; (a b c)
+(cons '(a b c) '(d e f))                ; ((a b c) d e f)
+(pair? (cons 'a 'b))                    ; #t
+car                                     ; #<procedure>
+(car '(a . b))                          ; a
+(car '(a b c))                          ; a
+(car '((a b c) d e f))                  ; (a b c)
+(car (cons 'a '(b c d)))                ; a
+cdr                                     ; #<procedure>
+(cdr '(a . b))                          ; b
+(cdr '(a b c))                          ; (b c)
+(cdr '((a b c) d e f))                  ; (d e f)
+(cdr (cons 'a '(b c d)))                ; (b c d)
+(car (cdr '(a b c d e)))                ; b
 

@@ -218,6 +218,39 @@ static object *num_eq_proc(object *arguments)
     return get_boolean(1);
 }
 
+
+static object *cons_proc(object *arguments)
+{
+    if (is_empty_list(arguments) || !is_empty_list(cdr(cdr(arguments)))) {
+        error("cons requires two arguments");
+    }
+
+    return cons(car(arguments), car(cdr(arguments)));
+}
+
+
+static object *car_proc(object *arguments)
+{
+    if (is_empty_list(arguments) || !is_empty_list(cdr(arguments)) ||
+            !is_pair(car(arguments))) {
+        error("car requires a single list or pair as an argument");
+    }
+
+    return car(car(arguments));
+}
+
+
+static object *cdr_proc(object *arguments)
+{
+    if (is_empty_list(arguments) || !is_empty_list(cdr(arguments)) ||
+            !is_pair(car(arguments))) {
+        error("cdr requires a single list or pair as an argument");
+    }
+
+    return cdr(car(arguments));
+}
+
+
 void init_primitives(void)
 {
     defprim("eq?", eq_proc);
@@ -234,5 +267,8 @@ void init_primitives(void)
     defprim("-", sub_proc);
     defprim("*", mult_proc);
     defprim("=", num_eq_proc);
+    defprim("cons", cons_proc);
+    defprim("car", car_proc);
+    defprim("cdr", cdr_proc);
 }
 
