@@ -119,6 +119,13 @@ static object *is_pair_proc(object *arguments)
 }
 
 
+static object *is_list_proc(object *arguments)
+{
+    require_exactly_one(arguments, "list?");
+    return get_boolean(is_list(car(arguments)));
+}
+
+
 static object *is_procedure_proc(object *arguments)
 {
     require_exactly_one(arguments, "procedure?");
@@ -269,6 +276,7 @@ void init_primitives(void)
     defprim("char?", is_char_proc);
     defprim("string?", is_string_proc);
     defprim("pair?", is_pair_proc);
+    defprim("list?", is_list_proc);
     defprim("procedure?", is_procedure_proc);
     defprim("length", length_proc);
     defprim("+", add_proc);

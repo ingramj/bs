@@ -101,6 +101,23 @@ object *cons(object *obj_car, object *obj_cdr)
 }
 
 
+int is_list(object *obj)
+{
+    if (is_empty_list(obj)) {
+        return 1;
+    }
+
+    while (is_pair(obj)) {
+        if (is_empty_list(cdr(obj))) {
+            return 1;
+        }
+        obj = cdr(obj);
+    }
+
+    return 0;
+}
+
+
 object *make_symbol(char const *name)
 {
     object *sym = lookup_symbol(name);

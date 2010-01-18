@@ -62,6 +62,8 @@ object *cons(object *obj_car, object *obj_cdr);
 
 inline int is_pair(object *obj) { return obj->type == PAIR; }
 
+int is_list(object *obj);
+
 inline object *car(object *pair)
 {
     if (pair->type != PAIR) error("not a pair");

@@ -163,4 +163,12 @@ set-cdr!                                ; #<procedure>
 (define l2 '(1 2 3))                    ; ok
 (set-cdr! l2 '(a b c))                  ; ok
 (cdr l2)                                ; (a b c)
+list?                                   ; #<procedure>
+(list? 'a)                              ; #f
+(list? '(a))                            ; #t
+(list? '(1 2 3 4 5 6))                  ; #t
+(list? '())                             ; #t
+(list? '((a b c) (1 2 3)))              ; #t
+(list? '(1 . a))                        ; #f
+(list? '(1 . (2 . (3 . ()))))           ; #t
 
