@@ -1,13 +1,56 @@
+bs - A Basic Scheme Implementation
+==================================
 bs is an interpreter for a simple Scheme-like language that is in very early
-development. But when it is finished, it will still lack the more advanced
+development. But even when it is finished, it will still lack the more advanced
 features of Scheme, such as macros and continuations.
 
-The goal of bs is to implement enough of Scheme to write a Scheme compiler
-in itself. A secondary goal is to learn about writing simple interpreters.
+The goal of bs is to implement enough of Scheme to boostrap a Scheme compiler
+written in Scheme. A secondary goal is to learn about writing simple
+interpreters.
 
 This project was inspired by Peter Michaux's "Scheme from Scratch" project.
 http://peter.michaux.ca/articles/scheme-from-scratch-introduction
 
+
+Features Implemented
+====================
+Data types:
+    integers
+    booleans
+    characters
+    strings
+    pairs and lists
+Special Forms:
+    quote and '
+    define
+    set!
+    if
+Procedures:
+    null?
+    boolean?
+    symbol?
+    integer?
+    char?
+    string?
+    pair?
+    list?
+    procedure?
+    +
+    -
+    *
+    =
+    cons
+    car
+    set-car!
+    cdr
+    set-cdr!
+    length
+
+There is no lambda yet, but there will be soon.
+
+
+Compilation
+============
 To build bs, you'll need libgc and scons. Assuming you already have gcc
 installed, you can install the neccessary packages on a Debian-based system
 with this command:
@@ -18,5 +61,8 @@ Then type "scons" in the project directory to build bs.
 
 If you are using a non-Debian-based system, or a different compiler, you'll
 probably need to edit the SConstruct file.
+
+There is a simple test script in the tests/ directory. Look at the comments at
+the top of run-tests.sh for details.
 
 See the LICENSE file for copyright and licensing information.
