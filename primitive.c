@@ -45,6 +45,10 @@
     if (!is_number(arg)) { error(name " called with non-numeric argument"); }
 
 
+#define require_pair(arg, name) \
+    if (!is_pair(arg)) { error(name " called with non-pair argument"); }
+
+
 static object *eq_proc(object *arguments)
 {
     require_exactly_two(arguments, "eq?");
@@ -138,9 +142,7 @@ static object *add_proc(object *arguments)
     long result = 0;
 
     while (!is_empty_list(arguments)) {
-        if (!is_number(car(arguments))) {
-            error("+ called with non-numeric arguments");
-        }
+        require_number(car(arguments), "+");
         result += car(arguments)->value.number;
         arguments = cdr(arguments);
     }
@@ -209,9 +211,7 @@ static object *cons_proc(object *arguments)
 static object *car_proc(object *arguments)
 {
     require_exactly_one(arguments, "car");
-    if (!is_pair(car(arguments))) {
-        error("car requires a list or pair as an argument");
-    }
+    require_pair(car(arguments), "car");
     return car(car(arguments));
 }
 
@@ -219,10 +219,7 @@ static object *car_proc(object *arguments)
 static object *set_car_proc(object *arguments)
 {
     require_exactly_two(arguments, "set-car!");
-    if (!is_pair(car(arguments))) {
-        error("first argument to set-car! must be a pair or list");
-    }
-
+    require_pair(car(arguments), "set-car!");
     set_car(car(arguments), car(cdr(arguments)));
     return lookup_symbol("ok");
 }
@@ -231,21 +228,15 @@ static object *set_car_proc(object *arguments)
 static object *cdr_proc(object *arguments)
 {
     require_exactly_one(arguments, "cdr");
-    if (!is_pair(car(arguments))) {
-        error("cdr requires a list or pair as an argument");
-    }
-
+    require_pair(car(arguments), "cdr");
     return cdr(car(arguments));
 }
 
 
 static object *set_cdr_proc(object *arguments)
 {
-    require_exactly_two(arguments, "set-cdr!")
-    if (!is_pair(car(arguments))) {
-        error("first argument to set-cdr! must be a pair or list");
-    }
-
+    require_exactly_two(arguments, "set-cdr!");
+    require_pair(car(arguments), "set-cdr!");
     set_cdr(car(arguments), car(cdr(arguments)));
     return lookup_symbol("ok");
 }
