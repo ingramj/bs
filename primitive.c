@@ -332,6 +332,12 @@ static object *length_proc(object *arguments)
 }
 
 
+static object *list_proc(object *arguments)
+{
+    return arguments;
+}
+
+
 void init_primitives(void)
 {
     defprim("eq?", eq_proc);
@@ -358,5 +364,6 @@ void init_primitives(void)
     defprim("cdr", cdr_proc);
     defprim("set-cdr!", set_cdr_proc);
     defprim("length", length_proc);
+    defprim("list", list_proc);
 }
 

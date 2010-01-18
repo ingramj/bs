@@ -190,10 +190,15 @@ set-cdr!                                ; #<procedure>
 (cdr l)                                 ; h
 (define l2 '(1 2 3))                    ; ok
 (set-cdr! l2 '(a b c))                  ; ok
+(cdr l2)                                ; (a b c)
 length                                  ; #<procedure>
 (length '())                            ; 0
 (length '(1))                           ; 1
 (length '(a b c))                       ; 3
 (length '(+ 1 2 (- 3 4)))               ; 4
-(cdr l2)                                ; (a b c)
+list                                    ; #<procedure>
+(list 1)                                ; (1)
+(list 'a 'b 'c)                         ; (a b c)
+(list)                                  ; ()
+(list (+ 1 2) (+ 3 4) (+ 5 6))          ; (3 7 11)
 

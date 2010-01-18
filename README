@@ -49,6 +49,7 @@ Procedures:
     cdr
     set-cdr!
     length
+    list
 
 There is no lambda yet, but there will be soon.
 
