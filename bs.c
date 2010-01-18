@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
     set_input_file(in);
 
     if(in == stdin) {
-        printf("REPL test. Press ctrl-d to quit.\n");
+        printf("Welcome to the bs REPL. Press ctrl-d to quit.\n");
         printf("bs> ");
     }
     object *obj = bs_read();
