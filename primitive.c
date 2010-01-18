@@ -18,11 +18,32 @@
             get_global_environment())
 
 
+#define require_exactly_one(args, name) \
+    if (is_empty_list(args) || !is_empty_list(cdr(arguments))) { \
+        error(name " requires a single argument"); \
+    }
+
+
+#define require_exactly_two(args, name) \
+    if (is_empty_list(args) || is_empty_list(cdr(args)) || \
+            !is_empty_list(cdr(cdr(arguments)))) { \
+        error(name " requires two arguments"); \
+    }
+
+
+#define require_at_least_one(args, name) \
+    if (is_empty_list(args)) { error(name " requires at least one argument"); }
+
+
+#define require_at_least_two(args, name) \
+    if (is_empty_list(args) || is_empty_list(cdr(args))) { \
+        error(name " requires at least two arguments"); \
+    }
+
+
 static object *eq_proc(object *arguments)
 {
-    if (is_empty_list(arguments) || !is_empty_list(cdr(cdr(arguments)))) {
-        error("eq? requires exactly two arguments");
-    }
+    require_exactly_two(arguments, "eq?");
 
     object *o1 = car(arguments);
     object *o2 = car(cdr(arguments));
@@ -47,89 +68,63 @@ static object *eq_proc(object *arguments)
 
 static object *is_null_proc(object *arguments)
 {
-    if (is_empty_list(arguments) || !is_empty_list(cdr(arguments))) {
-        error("null? requires a single argument");
-    }
-
+    require_exactly_one(arguments, "null?");
     return get_boolean(is_empty_list(car(arguments)));
 }
 
 
 static object *is_boolean_proc(object *arguments)
 {
-    if (is_empty_list(arguments) || !is_empty_list(cdr(arguments))) {
-        error("boolean? requires a single argument");
-    }
-
+    require_exactly_one(arguments, "boolean?");
     return get_boolean(is_boolean(car(arguments)));
 }
 
 
 static object *is_symbol_proc(object *arguments)
 {
-    if (is_empty_list(arguments) || !is_empty_list(cdr(arguments))) {
-        error("symbol? requires a single argument");
-    }
-
+    require_exactly_one(arguments, "symbol?");
     return get_boolean(is_symbol(car(arguments)));
 }
 
 
 static object *is_integer_proc(object *arguments)
 {
-    if (is_empty_list(arguments) || !is_empty_list(cdr(arguments))) {
-        error("integer? requires a single argument");
-    }
-
+    require_exactly_one(arguments, "integer?");
     return get_boolean(is_number(car(arguments)));
 }
 
 
 static object *is_char_proc(object *arguments)
 {
-    if (is_empty_list(arguments) || !is_empty_list(cdr(arguments))) {
-        error("char? requires a single argument");
-    }
-
+    require_exactly_one(arguments, "char?");
     return get_boolean(is_character(car(arguments)));
 }
 
 
 static object *is_string_proc(object *arguments)
 {
-    if (is_empty_list(arguments) || !is_empty_list(cdr(arguments))) {
-        error("string? requires a single argument");
-    }
-
+    require_exactly_one(arguments, "string?");
     return get_boolean(is_string(car(arguments)));
 }
 
 
 static object *is_pair_proc(object *arguments)
 {
-    if (is_empty_list(arguments) || !is_empty_list(cdr(arguments))) {
-        error("pair? requires a single argument");
-    }
-
+    require_exactly_one(arguments, "pair?");
     return get_boolean(is_pair(car(arguments)));
 }
 
 
 static object *is_procedure_proc(object *arguments)
 {
-    if (is_empty_list(arguments) || !is_empty_list(cdr(arguments))) {
-        error("procedure? requires a single argument");
-    }
-
+    require_exactly_one(arguments, "procedure?");
     return get_boolean(is_primitive(car(arguments)));
 }
 
 
 static object *length_proc(object *arguments)
 {
-    if (is_empty_list(arguments) || !is_empty_list(cdr(arguments))) {
-        error("length requires a single list as an argument");
-    }
+    require_exactly_one(arguments, "length");
 
     long result = 0;
     arguments = car(arguments);
@@ -159,10 +154,7 @@ static object *add_proc(object *arguments)
 
 static object *sub_proc(object *arguments)
 {
-    if (is_empty_list(arguments)) {
-        error("- requires at least one argument");
-    }
-
+    require_at_least_one(arguments, "-");
     if (!is_number(car(arguments))) {
         error("- called with non-numeric arguments");
     }
@@ -201,9 +193,7 @@ static object *mult_proc(object *arguments)
 
 static object *num_eq_proc(object *arguments)
 {
-    if (is_empty_list(arguments) || is_empty_list(cdr(arguments))) {
-        error("= requires at least two arguments");
-    }
+    require_at_least_two(arguments, "=");
 
     while (!is_empty_list(arguments) && ! is_empty_list(cdr(arguments))) {
         if (!is_number(car(arguments)) || !is_number(car(cdr(arguments)))) {
@@ -222,30 +212,26 @@ static object *num_eq_proc(object *arguments)
 
 static object *cons_proc(object *arguments)
 {
-    if (is_empty_list(arguments) || !is_empty_list(cdr(cdr(arguments)))) {
-        error("cons requires two arguments");
-    }
-
+    require_exactly_two(arguments, "cons");
     return cons(car(arguments), car(cdr(arguments)));
 }
 
 
 static object *car_proc(object *arguments)
 {
-    if (is_empty_list(arguments) || !is_empty_list(cdr(arguments)) ||
-            !is_pair(car(arguments))) {
-        error("car requires a single list or pair as an argument");
+    require_exactly_one(arguments, "car");
+    if (!is_pair(car(arguments))) {
+        error("car requires a list or pair as an argument");
     }
-
     return car(car(arguments));
 }
 
 
 static object *set_car_proc(object *arguments)
 {
-    if (is_empty_list(arguments) || !is_empty_list(cdr(cdr(arguments))) ||
-            !is_pair(car(arguments))) {
-        error("set-car requires a pair or list, and a second argument");
+    require_exactly_two(arguments, "set-car!");
+    if (!is_pair(car(arguments))) {
+        error("first argument to set-car! must be a pair or list");
     }
 
     set_car(car(arguments), car(cdr(arguments)));
@@ -255,9 +241,9 @@ static object *set_car_proc(object *arguments)
 
 static object *cdr_proc(object *arguments)
 {
-    if (is_empty_list(arguments) || !is_empty_list(cdr(arguments)) ||
-            !is_pair(car(arguments))) {
-        error("cdr requires a single list or pair as an argument");
+    require_exactly_one(arguments, "cdr");
+    if (!is_pair(car(arguments))) {
+        error("cdr requires a list or pair as an argument");
     }
 
     return cdr(car(arguments));
@@ -266,9 +252,9 @@ static object *cdr_proc(object *arguments)
 
 static object *set_cdr_proc(object *arguments)
 {
-    if (is_empty_list(arguments) || !is_empty_list(cdr(cdr(arguments))) ||
-            !is_pair(car(arguments))) {
-        error("set-car requires a pair or list, and a second argument");
+    require_exactly_two(arguments, "set-cdr!")
+    if (!is_pair(car(arguments))) {
+        error("first argument to set-cdr! must be a pair or list");
     }
 
     set_cdr(car(arguments), car(cdr(arguments)));
