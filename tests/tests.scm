@@ -209,4 +209,14 @@ integer->char                           ; #<procedure>
 (integer->char 47)                      ; #\/
 (integer->char (char->integer #\space)) ; #\space
 (char->integer (integer->char 9))       ; 9
+(lambda () '())                         ; #<procedure>
+(define (empty) '())                    ; ok
+empty                                   ; #<procedure>
+(empty)                                 ; ()
+(define add (lambda (x y) (+ x y)))     ; ok
+(add 1 2)                               ; 3
+(define (map p l) (if (null? l) '() (cons (p (car l)) (map p (cdr l)))))  ; ok
+(define (double n) (* 2 n))             ; ok
+(map double '(0 1 2 3))                 ; (0 2 4 6)
+(map (lambda (z) (+ 1 z)) '(0 1 2 3))   ; (1 2 3 4)
 
