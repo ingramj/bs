@@ -18,7 +18,7 @@ struct table_entry {
 };
 
 
-#define HASH_SIZE 1021
+#define HASH_SIZE 1439
 static struct table_entry *symbol_table[HASH_SIZE];
 
 
@@ -67,7 +67,7 @@ object *lookup_symbol(char const *name)
     struct table_entry *entry = symbol_table[hashval];
 
     while (entry != NULL) {
-        if (strncmp(entry->symbol->value.symbol, name, strlen(name)) == 0) {
+        if (strcmp(entry->symbol->value.symbol, name) == 0) {
             return entry->symbol;
         }
         entry = entry->next;
