@@ -219,4 +219,10 @@ empty                                   ; #<procedure>
 (define (double n) (* 2 n))             ; ok
 (map double '(0 1 2 3))                 ; (0 2 4 6)
 (map (lambda (z) (+ 1 z)) '(0 1 2 3))   ; (1 2 3 4)
+(define (kons x y) (lambda (m) (m x y))); ok
+(define (kar z) (z (lambda (p q) p)))   ; ok
+(define (kdr z) (z (lambda (p q) q)))   ; ok
+(define a-pair (kons 'a 'b))            ; ok
+(kar a-pair)                            ; a
+(kdr a-pair)                            ; b
 
