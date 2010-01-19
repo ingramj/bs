@@ -34,6 +34,11 @@ static inline object *if_predicate(object *exp);
 static inline object *if_consequent(object *exp);
 static inline object *if_alternate(object *exp);
 
+/**** Begin expressions ****/
+static inline int is_begin(object *exp);
+static inline object *make_begin(object *exp);
+static inline object *begin_actions(object *exp);
+
 /**** Lambda expressions ****/
 static inline int is_lambda(object *exp);
 static inline object *make_lambda(object *parameters, object *body);
@@ -179,6 +184,25 @@ static inline object *if_alternate(object *exp)
 }
 
 
+/**** Begin expressions ****/
+static inline int is_begin(object *exp)
+{
+    return is_tagged_list(exp, lookup_symbol("begin"));
+}
+
+
+static inline object *make_begin(object *exp)
+{
+    return cons(lookup_symbol("begin"), exp);
+}
+
+
+static inline object *begin_actions(object *exp)
+{
+    return cdr(exp);
+}
+
+
 /**** Lambda expressions ****/
 static inline int is_lambda(object *exp)
 {
@@ -242,6 +266,7 @@ void init_special_forms(void)
     make_symbol("define");
     make_symbol("ok");  // not a special form, but returned by define and set!
     make_symbol("if");
+    make_symbol("begin");
     make_symbol("lambda");
 }
 
@@ -271,6 +296,17 @@ tailcall:
         return make_compound_proc(lambda_parameters(exp),
                 lambda_body(exp),
                 env);
+    } else if (is_begin(exp)) {
+        exp = begin_actions(exp);
+        if (is_empty_list(exp)) {
+            error("empty begin block");
+        }
+        while (!is_empty_list(cdr(exp))) {
+            bs_eval(car(exp), env);
+            exp = cdr(exp);
+        }
+        exp = car(exp);
+        goto tailcall;
     } else if (is_application(exp)) {
         object *procedure = bs_eval(operator(exp), env);
         object *arguments = eval_argument_list(operands(exp), env);
@@ -281,12 +317,7 @@ tailcall:
                     procedure->value.compound_proc.parameters,
                     arguments,
                     procedure->value.compound_proc.env);
-            exp = procedure->value.compound_proc.body;
-            while (!is_empty_list(cdr(exp))) {
-                bs_eval(car(exp), env);
-                exp = cdr(exp);
-            }
-            exp = car(exp);
+            exp = make_begin(procedure->value.compound_proc.body);
             goto tailcall;
         } else {
             error("unknown procedure type");

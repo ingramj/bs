@@ -225,4 +225,9 @@ empty                                   ; #<procedure>
 (define a-pair (kons 'a 'b))            ; ok
 (kar a-pair)                            ; a
 (kdr a-pair)                            ; b
+(begin 1)                               ; 1
+(begin 1 2 3)                           ; 3
+(begin (define alpha 1) alpha)          ; 1
+(begin (set! alpha 2) alpha)            ; 2
+(begin (define (beta x) (+ 1 x)) (beta alpha))  ; 3
 
