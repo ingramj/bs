@@ -5,6 +5,7 @@
  */
 
 #include "eval.h"
+#include "environment.h"
 #include "table.h"
 #include "object.h"
 #include "error.h"
@@ -44,20 +45,6 @@ static inline int is_application(object *exp);
 static inline object *operator(object *exp);
 static inline object *operands(object *exp);
 static object *eval_argument_list(object *args, object *env);
-
-/**** Environments ****/
-static inline object *enclosing_environment(object *env);
-static object *extend_environment(object *vars, object *vals,
-        object *base_env);
-static object *lookup_variable_value(object *var, object *env);
-static void set_variable_value(object *var, object *val, object *env);
-
-/**** Frames *****/
-static inline object *first_frame(object *env);
-static inline object *make_frame(object *variables, object *values);
-static inline object *frame_variables(object *frame);
-static inline object *frame_values(object *frame);
-static void add_binding_to_frame(object *var, object *val, object *frame);
 
 
 static int is_self_evaluating(object *obj)
@@ -244,138 +231,6 @@ static object *eval_argument_list(object *args, object *env)
         return cons(bs_eval(car(args), env),
                 eval_argument_list(cdr(args), env));
     }
-}
-
-
-/**** Environments ****/
-static object *empty_environment = NULL;
-static object *global_environment = NULL;
-
-
-object *get_global_environment(void)
-{
-    return global_environment;
-}
-
-
-void init_environments(void)
-{
-    object *empty_list = get_empty_list();
-    empty_environment = empty_list;
-    global_environment = extend_environment(empty_list, empty_list,
-            empty_environment);
-}
-
-
-static inline object *enclosing_environment(object *env)
-{
-    return cdr(env);
-}
-
-
-static object *extend_environment(object *vars, object *vals,
-        object *base_env)
-{
-    return cons(make_frame(vars, vals), base_env);
-}
-
-
-static object *lookup_variable_value(object *var, object *env)
-{
-    object *frame;
-    object *vars;
-    object *vals;
-    while (!is_empty_list(env)) {
-        frame = first_frame(env);
-        vars = frame_variables(frame);
-        vals = frame_values(frame);
-        while (!is_empty_list(vars)) {
-            if (var == car(vars)) {
-                return car(vals);
-            }
-            vars = cdr(vars);
-            vals = cdr(vals);
-        }
-        env = enclosing_environment(env);
-    }
-    error("variable '%s' is not bound", var->value.symbol);
-}
-
-
-static void set_variable_value(object *var, object *val, object *env)
-{
-    object *frame;
-    object *vars;
-    object *vals;
-
-    while (!is_empty_list(env)) {
-        frame = first_frame(env);
-        vars = frame_variables(frame);
-        vals = frame_values(frame);
-        while (!is_empty_list(vars)) {
-            if (var == car(vars)) {
-                set_car(vals, val);
-                return;
-            }
-            vars = cdr(vars);
-            vals = cdr(vals);
-        }
-        env = enclosing_environment(env);
-    }
-    error("variable '%s' is not bound", var->value.symbol);
-}
-
-
-void define_variable(object *var, object *val, object *env)
-{
-    object *frame = first_frame(env);
-    object *vars = frame_variables(frame);
-    object *vals = frame_values(frame);
-
-    // if the variable is already bound, rebind it to the new value.
-    while (!is_empty_list(vars)) {
-        if (var == car(vars)) {
-            set_car(vals, val);
-            return;
-        }
-        vars = cdr(vars);
-        vals = cdr(vals);
-    }
-
-    // otherwise, create a new binding.
-    add_binding_to_frame(var, val, frame);
-}
-
-
-/**** Frames *****/
-static inline object *first_frame(object *env)
-{
-    return car(env);
-}
-
-
-static inline object *make_frame(object *variables, object *values)
-{
-    return cons(variables, values);
-}
-
-
-static inline object *frame_variables(object *frame)
-{
-    return car(frame);
-}
-
-
-static inline object *frame_values(object *frame)
-{
-    return cdr(frame);
-}
-
-
-static void add_binding_to_frame(object *var, object *val, object *frame)
-{
-    set_car(frame, cons(var, car(frame)));
-    set_cdr(frame, cons(val, cdr(frame)));
 }
 
 

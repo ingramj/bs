@@ -12,6 +12,7 @@
 #include "error.h"
 #include "object.h"
 #include "eval.h"
+#include "environment.h"
 #include "table.h"
 
 #define defprim(name, proc) \

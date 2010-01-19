@@ -12,6 +12,7 @@
 #include "parser.h"
 #include "lexer.h"
 #include "eval.h"
+#include "environment.h"
 #include "primitive.h"
 #include "print.h"
 #include "table.h"
