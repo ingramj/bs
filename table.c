@@ -22,12 +22,13 @@ struct table_entry {
 static struct table_entry *symbol_table[HASH_SIZE];
 
 
-static unsigned hash(char const *name)
+static unsigned long hash(char const *name)
 {
-    unsigned hashval;
+    unsigned long hashval;
 
-    for (hashval = 0; *name != '\0'; name++) {
-        hashval = (unsigned)*name + 31 * hashval;
+    // DJB2 hash
+    for (hashval = 5381; *name != '\0'; name++) {
+        hashval = ((hashval << 5) + hashval) + (unsigned long)*name;
     }
     return hashval % HASH_SIZE;
 }
@@ -43,15 +44,15 @@ object *insert_symbol(object *symbol)
         return symbol;
     }
 
-    unsigned hashval = hash(symbol->value.symbol);
+    unsigned long hashval = hash(symbol->value.symbol);
     struct table_entry *entry = GC_MALLOC(sizeof(struct table_entry));
     if (entry == NULL) {
         error("unable to allocate symbol table entry:");
     }
 
     if (symbol_table[hashval] != NULL) {
-        info("hash collision while inserting symbol '%s'",
-                symbol->value.symbol);
+        info("hash collision while inserting symbol '%s' (hashval=%lu)",
+                symbol->value.symbol, hashval);
     }
     entry->symbol = symbol;
     entry->next = symbol_table[hashval];
@@ -63,7 +64,7 @@ object *insert_symbol(object *symbol)
 
 object *lookup_symbol(char const *name)
 {
-    unsigned hashval = hash(name);
+    unsigned long hashval = hash(name);
     struct table_entry *entry = symbol_table[hashval];
 
     while (entry != NULL) {
