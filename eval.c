@@ -33,12 +33,17 @@ static inline object *if_predicate(object *exp);
 static inline object *if_consequent(object *exp);
 static inline object *if_alternate(object *exp);
 
+/**** Lambda expressions ****/
+static inline int is_lambda(object *exp);
+static inline object *make_lambda(object *parameters, object *body);
+static inline object *lambda_parameters(object *exp);
+static inline object *lambda_body(object *exp);
+
 /**** Procedure applications ****/
 static inline int is_application(object *exp);
 static inline object *operator(object *exp);
 static inline object *operands(object *exp);
 static object *eval_argument_list(object *args, object *env);
-static object *eval_application(object *exp, object *env);
 
 /**** Environments ****/
 static inline object *enclosing_environment(object *env);
@@ -129,13 +134,21 @@ static inline int is_definition(object *exp)
 
 static inline object *definition_variable(object *exp)
 {
-    return car(cdr(exp));
+    if (is_symbol(car(cdr(exp)))) {
+        return car(cdr(exp));
+    } else {
+        return car(car(cdr(exp)));
+    }
 }
 
 
 static inline object *definition_value(object *exp)
 {
-    return car(cdr(cdr(exp)));
+    if (is_symbol(car(cdr(exp)))) {
+        return car(cdr(cdr(exp)));
+    } else {
+        return make_lambda(cdr(car(cdr(exp))), cdr(cdr(exp)));
+    }
 }
 
 
@@ -179,6 +192,31 @@ static inline object *if_alternate(object *exp)
 }
 
 
+/**** Lambda expressions ****/
+static inline int is_lambda(object *exp)
+{
+    return is_tagged_list(exp, lookup_symbol("lambda"));
+}
+
+
+static inline object *make_lambda(object *parameters, object *body)
+{
+    return cons(lookup_symbol("lambda"), cons(parameters, body));
+}
+
+
+static inline object *lambda_parameters(object *exp)
+{
+    return car(cdr(exp));
+}
+
+
+static inline object *lambda_body(object *exp)
+{
+    return cdr(cdr(exp));
+}
+
+
 /**** Procedure applications ****/
 static inline int is_application(object *exp)
 {
@@ -206,14 +244,6 @@ static object *eval_argument_list(object *args, object *env)
         return cons(bs_eval(car(args), env),
                 eval_argument_list(cdr(args), env));
     }
-}
-
-
-static object *eval_application(object *exp, object *env)
-{
-    object *procedure = bs_eval(operator(exp), env);
-    object *arguments = eval_argument_list(operands(exp), env);
-    return (procedure->value.primitive)(arguments);
 }
 
 
@@ -298,14 +328,6 @@ static void set_variable_value(object *var, object *val, object *env)
 
 void define_variable(object *var, object *val, object *env)
 {
-    if (!is_symbol(var)) {
-        if (is_pair(var)) {
-            error("definition of procedures is not implemented");
-        } else {
-            error("define variable must be a symbol");
-        }
-    }
-
     object *frame = first_frame(env);
     object *vars = frame_variables(frame);
     object *vals = frame_values(frame);
@@ -365,6 +387,7 @@ void init_special_forms(void)
     make_symbol("define");
     make_symbol("ok");  // not a special form, but returned by define and set!
     make_symbol("if");
+    make_symbol("lambda");
 }
 
 
@@ -389,8 +412,30 @@ tailcall:
             exp = if_consequent(exp);
         }
         goto tailcall;
+    } else if (is_lambda(exp)) {
+        return make_compound_proc(lambda_parameters(exp),
+                lambda_body(exp),
+                env);
     } else if (is_application(exp)) {
-        return eval_application(exp, env);
+        object *procedure = bs_eval(operator(exp), env);
+        object *arguments = eval_argument_list(operands(exp), env);
+        if (is_primitive_proc(procedure)) {
+            return (procedure->value.primitive_proc)(arguments);
+        } else if (is_compound_proc(procedure)) {
+            env = extend_environment(
+                    procedure->value.compound_proc.parameters,
+                    arguments,
+                    procedure->value.compound_proc.env);
+            exp = procedure->value.compound_proc.body;
+            while (!is_empty_list(cdr(exp))) {
+                bs_eval(car(exp), env);
+                exp = cdr(exp);
+            }
+            exp = car(exp);
+            goto tailcall;
+        } else {
+            error("unknown procedure type");
+        }
     } else {
         error("unable to evaluate expression");
     }

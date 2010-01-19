@@ -16,7 +16,7 @@
 
 #define defprim(name, proc) \
     define_variable(make_symbol(name), \
-            make_primitive(proc), \
+            make_primitive_proc(proc), \
             get_global_environment())
 
 
@@ -135,7 +135,7 @@ static object *is_list_proc(object *arguments)
 static object *is_procedure_proc(object *arguments)
 {
     require_exactly_one(arguments, "procedure?");
-    return get_boolean(is_primitive(car(arguments)));
+    return get_boolean(is_procedure(car(arguments)));
 }
 
 

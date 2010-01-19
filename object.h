@@ -17,7 +17,8 @@ typedef enum {
     SYMBOL,
     EMPTY_LIST,
     PAIR,
-    PRIMITIVE
+    PRIMITIVE_PROC,
+    COMPOUND_PROC
 } object_type;
 
 
@@ -32,7 +33,12 @@ typedef struct object {
             struct object *car;
             struct object *cdr;
         } pair;
-        struct object *(*primitive)(struct object *arguments);
+        struct object *(*primitive_proc)(struct object *arguments);
+        struct {
+            struct object *parameters;
+            struct object *body;
+            struct object *env;
+        } compound_proc;
     } value;
     object_type type;
 } object;
@@ -89,8 +95,19 @@ inline void set_cdr(object *pair, object *obj)
 }
 
 
-object *make_primitive(object *(*fn)(object *args));
-inline int is_primitive(object *obj) { return obj->type == PRIMITIVE; }
+object *make_primitive_proc(object *(*fn)(object *args));
+inline int is_primitive_proc(object *obj)
+{
+    return obj->type == PRIMITIVE_PROC;
+}
+
+object *make_compound_proc(object *paramters, object *body, object *env);
+inline int is_compound_proc(object *obj) { return obj->type == COMPOUND_PROC; }
+
+inline int is_procedure(object *obj)
+{
+    return is_primitive_proc(obj) || is_compound_proc(obj);
+}
 
 #endif
 

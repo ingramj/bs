@@ -22,7 +22,9 @@ extern object *car(object *pair);
 extern void set_car(object *pair, object *obj);
 extern object *cdr(object *pair);
 extern void set_cdr(object *pair, object *obj);
-extern int is_primitive(object *obj);
+extern int is_primitive_proc(object *obj);
+extern int is_compound_proc(object *obj);
+extern int is_procedure(object *obj);
 
 static object *alloc_object(void);
 
@@ -132,12 +134,24 @@ object *make_symbol(char const *name)
 }
 
 
-object *make_primitive(object *(*fn)(object *args))
+object *make_primitive_proc(object *(*fn)(object *args))
 {
     object *prim = alloc_object();
-    prim->type = PRIMITIVE;
-    prim->value.primitive = fn;
+    prim->type = PRIMITIVE_PROC;
+    prim->value.primitive_proc = fn;
 
     return prim;
+}
+
+
+object *make_compound_proc(object *parameters, object *body, object *env)
+{
+    object *proc = alloc_object();
+    proc->type = COMPOUND_PROC;
+    proc->value.compound_proc.parameters = parameters;
+    proc->value.compound_proc.body = body;
+    proc->value.compound_proc.env = env;
+
+    return proc;
 }
 
