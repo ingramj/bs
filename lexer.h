@@ -36,7 +36,6 @@ typedef struct token {
 
 token *get_token(void);
 void push_back_token(token *t);
-void set_input_file(FILE *in);
 
 #endif
 

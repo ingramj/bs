@@ -12,9 +12,10 @@
 #include "gc.h"
 
 #include "lexer.h"
+#include "file.h"
 #include "error.h"
 
-/**** File handling and reading ****/
+/**** Input reading ****/
 static long read_line(char **bufptr);
 
 /**** Lexical analysis ****/
@@ -47,21 +48,6 @@ token *get_token(void)
 }
 
 
-/**** File handling and reading ****/
-static FILE *input_file = NULL;
-
-
-void set_input_file(FILE *f)
-{
-    if (f == NULL) {
-        warn("null file pointer, defaulting to stdin");
-        input_file = stdin;
-    } else {
-        input_file = f;
-    }
-}
-
-
 /* Reads in a line of input, ended by a newline, null, or end of file.
  *
  * Takes the address of a pointer to const char, which is set to point
@@ -70,6 +56,7 @@ void set_input_file(FILE *f)
  */
 static long read_line(char **bufptr)
 {
+    FILE *input_file = get_input_file();
     if (input_file == NULL) {
         set_input_file(stdin);
     }

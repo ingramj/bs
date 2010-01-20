@@ -12,11 +12,13 @@
 #include "gc.h"
 
 #include "primitive.h"
+#include "parser.h"
 #include "error.h"
 #include "object.h"
 #include "eval.h"
 #include "environment.h"
 #include "table.h"
+#include "file.h"
 
 #define defprim(name, proc) \
     define_variable(make_symbol(name), \
@@ -455,6 +457,31 @@ static object *string_to_symbol_proc(object *arguments)
 }
 
 
+static object *load_proc(object *arguments)
+{
+    require_exactly_one(arguments, "load");
+    require_string(car(arguments), "load");
+
+    char const *src_file = car(arguments)->value.string;
+    FILE *in = fopen(src_file, "r");
+    if (in == NULL) {
+        error("unable to open %s:", src_file);
+    }
+
+    FILE *prev_file = get_input_file();
+    set_input_file(in);
+    object *obj = bs_read();
+    while (obj) {
+        bs_eval(obj, get_global_environment());
+        obj = bs_read();
+    }
+    set_input_file(prev_file);
+    fclose(in);
+
+    return lookup_symbol("ok");
+}
+
+
 void init_primitives(void)
 {
     defprim("eq?", eq_proc);
@@ -488,5 +515,6 @@ void init_primitives(void)
     defprim("string->number", string_to_number_proc);
     defprim("symbol->string", symbol_to_string_proc);
     defprim("string->symbol", string_to_symbol_proc);
+    defprim("load", load_proc);
 }
 

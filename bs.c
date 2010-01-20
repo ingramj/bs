@@ -11,6 +11,7 @@
 #include "object.h"
 #include "parser.h"
 #include "lexer.h"
+#include "file.h"
 #include "eval.h"
 #include "environment.h"
 #include "primitive.h"
@@ -21,7 +22,7 @@
 void init_system(void)
 {
     GC_INIT();
-    set_error_level(INFO);
+    set_error_level(WARNING);
     init_special_forms();
     init_environments();
     init_primitives();
