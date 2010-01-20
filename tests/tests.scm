@@ -230,4 +230,11 @@ empty                                   ; #<procedure>
 (begin (define alpha 1) alpha)          ; 1
 (begin (set! alpha 2) alpha)            ; 2
 (begin (define (beta x) (+ 1 x)) (beta alpha))  ; 3
+(cond (#f 1) ((eq? 'a 'a) 2) (else 3))  ; 2
+(cond ((symbol? 1) #t) (else #f))       ; #f
+(cond ((< 10 (* 6 2)) #t) (else #f))    ; #t
+(define (type-of x) (cond ((integer? x) 'integer) ((boolean? x) 'boolean) (else 'dont-know)))   ; ok
+(type-of 10)                            ; integer
+(type-of #t)                            ; boolean
+(type-of #\c)                           ; dont-know
 

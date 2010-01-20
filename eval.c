@@ -19,6 +19,7 @@ static inline int is_quoted(object *exp);
 static inline int is_assignment(object *exp);
 static inline int is_definition(object *exp);
 static inline int is_if(object *exp);
+static inline int is_cond(object *exp);
 static inline int is_begin(object *exp);
 static inline int is_lambda(object *exp);
 static inline int is_application(object *exp);
@@ -33,6 +34,9 @@ static inline object *definition_value(object *exp);
 static inline object *if_predicate(object *exp);
 static inline object *if_consequent(object *exp);
 static inline object *if_alternate(object *exp);
+static inline object *cond_clauses(object *exp);
+static inline object *cond_predicate(object *clause);
+static inline object *cond_actions(object *clause);
 static inline object *begin_actions(object *exp);
 static inline object *lambda_parameters(object *exp);
 static inline object *lambda_body(object *exp);
@@ -41,6 +45,11 @@ static inline object *application_operands(object *exp);
 
 
 /**** Conversion ****/
+static inline object *make_if(object *predicate, object *consequent,
+        object *alternatives);
+static inline object *sequence_to_exp(object *seq);
+static object *expand_clauses(object *clauses);
+static inline object *cond_to_if(object *exp);
 static inline object *make_begin(object *exp);
 static inline object *make_lambda(object *parameters, object *body);
 
@@ -98,6 +107,12 @@ static inline int is_definition(object *exp)
 static inline int is_if(object *exp)
 {
     return is_tagged_list(exp, lookup_symbol("if"));
+}
+
+
+static inline int is_cond(object *exp)
+{
+    return is_tagged_list(exp, lookup_symbol("cond"));
 }
 
 
@@ -174,6 +189,24 @@ static inline object *if_alternate(object *exp)
 }
 
 
+static inline object *cond_clauses(object *exp)
+{
+    return cdr(exp);
+}
+
+
+static inline object *cond_predicate(object *clause)
+{
+    return car(clause);
+}
+
+
+static inline object *cond_actions(object *clause)
+{
+    return cdr(clause);
+}
+
+
 static inline object *begin_actions(object *exp)
 {
     return cdr(exp);
@@ -205,6 +238,56 @@ static inline object *application_operands(object *exp)
 
 
 /**** Conversion ****/
+static inline object *make_if(object *predicate, object *consequent,
+        object *alternative)
+{
+    return cons(lookup_symbol("if"),
+            cons(predicate,
+                cons(consequent,
+                    cons(alternative, get_empty_list()))));
+}
+
+
+static inline object *sequence_to_exp(object *seq)
+{
+    if (is_empty_list(seq)) {
+        return seq;
+    } else if (is_empty_list(cdr(seq))) {
+        return car(seq);
+    } else {
+        return make_begin(seq);
+    }
+}
+
+
+static object *expand_clauses(object *clauses)
+{
+    if (is_empty_list(clauses)) {
+        return get_boolean(0);
+    } else {
+        object *first = car(clauses);
+        object *rest = cdr(clauses);
+        if (cond_predicate(first) == lookup_symbol("else")) {
+            if (is_empty_list(rest)) {
+                return sequence_to_exp(cond_actions(first));
+            } else {
+                error("else clause must be last in cond expression");
+            }
+        } else {
+            return make_if(cond_predicate(first),
+                    sequence_to_exp(cond_actions(first)),
+                    expand_clauses(rest));
+        }
+    }
+}
+
+
+static inline object *cond_to_if(object *exp)
+{
+    return expand_clauses(cond_clauses(exp));
+}
+
+
 static inline object *make_begin(object *exp)
 {
     return cons(lookup_symbol("begin"), exp);
@@ -280,6 +363,9 @@ tailcall:
         }
         exp = car(exp);
         goto tailcall;
+    } else if (is_cond(exp)) {
+        exp = cond_to_if(exp);
+        goto tailcall;
     } else if (is_application(exp)) {
         object *procedure = bs_eval(application_operator(exp), env);
         object *parameters = eval_parameters(application_operands(exp), env);
@@ -308,6 +394,8 @@ void init_special_forms(void)
     make_symbol("define");
     make_symbol("ok");
     make_symbol("if");
+    make_symbol("cond");
+    make_symbol("else");
     make_symbol("begin");
     make_symbol("lambda");
 }

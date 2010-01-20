@@ -25,7 +25,9 @@ Special Forms:
     define
     set!
     if
+    cond
     lambda
+    begin
 Procedures:
     null?
     boolean?
