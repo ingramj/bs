@@ -59,6 +59,7 @@ Procedures:
     string->number
     symbol->string
     string->symbol
+    load
 
 
 Compilation
@@ -67,7 +68,7 @@ To build bs, you'll need libgc and scons. Assuming you already have gcc
 installed, you can install the neccessary packages on a Debian-based system
 with this command:
 
-sudo apt-get install libgc-dev scons
+    $ sudo apt-get install libgc-dev scons
 
 Then type "scons" in the project directory to build bs.
 
@@ -78,3 +79,4 @@ There is a simple test script in the tests/ directory. Look at the comments at
 the top of run-tests.sh for details.
 
 See the LICENSE file for copyright and licensing information.
+
