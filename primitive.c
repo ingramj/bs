@@ -4,9 +4,12 @@
  * See the LICENSE file for terms of use.
  */
 
+#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <limits.h>
+#include <errno.h>
+#include "gc.h"
 
 #include "primitive.h"
 #include "error.h"
@@ -46,6 +49,10 @@
 
 #define require_number(arg, name) \
     if (!is_number(arg)) { error(name " called with non-numeric argument"); }
+
+
+#define require_string(arg, name) \
+    if (!is_string(arg)) { error(name " called with non-string argument"); }
 
 
 #define require_pair(arg, name) \
@@ -365,6 +372,54 @@ static object *integer_to_char_proc(object *arguments)
 }
 
 
+static object *number_to_string_proc(object *arguments)
+{
+    require_exactly_one(arguments, "number->string");
+    require_number(car(arguments), "number->string");
+
+    long value = car(arguments)->value.number;
+    long num = value;
+    unsigned digits = 0;
+    if (num <= 0) {
+        digits += 1;
+        num *= -1;
+    }
+
+    while (num) {
+        num /= 10;
+        digits++;
+    }
+
+    char *buffer = GC_MALLOC(digits + 1);
+    if (buffer == NULL) {
+        error("unable to allocate string buffer");
+    }
+    snprintf(buffer, digits + 1, "%ld", value);
+
+    return make_string(buffer);
+}
+
+
+static object *string_to_number_proc(object *arguments)
+{
+    require_exactly_one(arguments, "string->number");
+    require_string(car(arguments), "string->number");
+
+    char const *s = car(arguments)->value.string;
+    char *end;
+    errno = 0;
+    long num = strtol(s, &end, 0);
+
+    if (end != (s + strlen(s))) {
+        error("string->number argument does not look like a number");
+    } else if (errno) {
+        error("unable to convert string to number:");
+    }
+
+    return make_number(num);
+}
+
+
 void init_primitives(void)
 {
     defprim("eq?", eq_proc);
@@ -394,5 +449,7 @@ void init_primitives(void)
     defprim("list", list_proc);
     defprim("char->integer", char_to_integer_proc);
     defprim("integer->char", integer_to_char_proc);
+    defprim("number->string", number_to_string_proc);
+    defprim("string->number", string_to_number_proc);
 }
 

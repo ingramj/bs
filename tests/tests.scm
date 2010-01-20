@@ -209,6 +209,17 @@ integer->char                           ; #<procedure>
 (integer->char 47)                      ; #\/
 (integer->char (char->integer #\space)) ; #\space
 (char->integer (integer->char 9))       ; 9
+number->string                          ; #<procedure>
+(number->string 0)                      ; "0"
+(number->string 123)                    ; "123"
+(number->string -9000)                  ; "-9000"
+(number->string 0x20)                   ; "32"
+string->number                          ; #<procedure>
+(string->number "0")                    ; 0
+(string->number "123")                  ; 123
+(string->number "-9000")                ; -9000
+(string->number "0x20")                 ; 32
+(string->number (number->string 408))   ; 408
 (lambda () '())                         ; #<procedure>
 (define (empty) '())                    ; ok
 empty                                   ; #<procedure>
