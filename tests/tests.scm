@@ -220,6 +220,11 @@ string->number                          ; #<procedure>
 (string->number "-9000")                ; -9000
 (string->number "0x20")                 ; 32
 (string->number (number->string 408))   ; 408
+symbol->string                          ; #<procedure>
+(symbol->string 'a)                     ; "a"
+(symbol->string '+)                     ; "+"
+(symbol->string '$s-to-donuts)          ; "$s-to-donuts"
+string->symbol                          ; #<procedure>
 (lambda () '())                         ; #<procedure>
 (define (empty) '())                    ; ok
 empty                                   ; #<procedure>

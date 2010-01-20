@@ -55,6 +55,10 @@ Procedures:
     list
     char->integer
     integer->char
+    number->string
+    string->number
+    symbol->string
+    string->symbol
 
 
 Compilation

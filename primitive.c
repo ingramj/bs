@@ -55,6 +55,10 @@
     if (!is_string(arg)) { error(name " called with non-string argument"); }
 
 
+#define require_symbol(arg, name) \
+    if (!is_symbol(arg)) { error(name " called with non-symbol argument"); }
+
+
 #define require_pair(arg, name) \
     if (!is_pair(arg)) { error(name " called with non-pair argument"); }
 
@@ -392,7 +396,7 @@ static object *number_to_string_proc(object *arguments)
 
     char *buffer = GC_MALLOC(digits + 1);
     if (buffer == NULL) {
-        error("unable to allocate string buffer");
+        error("unable to allocate string buffer:");
     }
     snprintf(buffer, digits + 1, "%ld", value);
 
@@ -417,6 +421,37 @@ static object *string_to_number_proc(object *arguments)
     }
 
     return make_number(num);
+}
+
+
+static object *symbol_to_string_proc(object *arguments)
+{
+    require_exactly_one(arguments, "symbol->string");
+    require_symbol(car(arguments), "symbol->string");
+
+    char const *sym = car(arguments)->value.symbol;
+    char *str = GC_MALLOC(strlen(sym) + 1);
+    if (str == NULL) {
+        error("unable to allocate string buffer:");
+    }
+    strcpy(str, sym);
+    return make_string(str);
+}
+
+
+static object *string_to_symbol_proc(object *arguments)
+{
+    /* This procedure can create a symbol that contains invalid characters. */
+    require_exactly_one(arguments, "string->symbol");
+    require_string(car(arguments), "string->symbol");
+
+    char const *str = car(arguments)->value.string;
+    char *sym = GC_MALLOC(strlen(str) + 1);
+    if (sym == NULL) {
+        error("unable to allocate symbol buffer:");
+    }
+    strcpy(sym, str);
+    return make_symbol(sym);
 }
 
 
@@ -451,5 +486,7 @@ void init_primitives(void)
     defprim("integer->char", integer_to_char_proc);
     defprim("number->string", number_to_string_proc);
     defprim("string->number", string_to_number_proc);
+    defprim("symbol->string", symbol_to_string_proc);
+    defprim("string->symbol", string_to_symbol_proc);
 }
 
