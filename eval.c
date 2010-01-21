@@ -304,10 +304,9 @@ static inline object *make_lambda(object *parameters, object *body)
 /**** Evaluation ****/
 static object *eval_assignment(object *exp, object *env)
 {
-    set_variable_value(assignment_variable(exp),
+    return set_variable_value(assignment_variable(exp),
             bs_eval(assignment_value(exp), env),
             env);
-    return lookup_symbol("ok");
 }
 
 

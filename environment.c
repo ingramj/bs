@@ -70,7 +70,7 @@ object *lookup_variable_value(object *var, object *env)
 }
 
 
-void set_variable_value(object *var, object *val, object *env)
+object *set_variable_value(object *var, object *val, object *env)
 {
     object *frame, *binding;
     while (!is_empty_list(env)) {
@@ -79,13 +79,14 @@ void set_variable_value(object *var, object *val, object *env)
             binding = car(frame);
             if (car(binding) == var) {
                 set_cdr(binding, val);
-                return;
+                return lookup_symbol("ok");
             }
             frame = cdr(frame);
         }
-        env = enclosing_environment(frame);
+        env = enclosing_environment(env);
     }
     warn("cannot set unbound variable '%s'", var->value.symbol);
+    return get_invalid();
 }
 
 
@@ -108,6 +109,7 @@ void define_variable(object *var, object *val, object *env)
     }
     frame = cons(cons(var, val), first_frame(env));
     set_car(env, frame);
+    return;
 }
 
 
