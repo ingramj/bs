@@ -27,6 +27,7 @@ Special Forms:
     if
     cond
     lambda
+    let
     begin
 Procedures:
     null?

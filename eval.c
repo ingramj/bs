@@ -22,6 +22,7 @@ static inline int is_if(object *exp);
 static inline int is_cond(object *exp);
 static inline int is_begin(object *exp);
 static inline int is_lambda(object *exp);
+static inline int is_let(object *exp);
 static inline int is_application(object *exp);
 
 
@@ -40,6 +41,14 @@ static inline object *cond_actions(object *clause);
 static inline object *begin_actions(object *exp);
 static inline object *lambda_parameters(object *exp);
 static inline object *lambda_body(object *exp);
+static inline object *let_bindings(object *exp);
+static inline object *let_body(object *exp);
+static inline object *binding_variable(object *binding);
+static inline object *binding_value(object *binding);
+static inline object *bindings_variables(object *bindings);
+static inline object *bindings_values(object *bindings);
+static inline object *let_variables(object *exp);
+static inline object *let_values(object *exp);
 static inline object *application_operator(object *exp);
 static inline object *application_operands(object *exp);
 
@@ -52,6 +61,8 @@ static object *expand_clauses(object *clauses);
 static inline object *cond_to_if(object *exp);
 static inline object *make_begin(object *exp);
 static inline object *make_lambda(object *parameters, object *body);
+static inline object *make_application(object *operator, object *operands);
+static inline object *let_to_application(object *exp);
 
 
 /**** Evaluation ****/
@@ -125,6 +136,12 @@ static inline int is_begin(object *exp)
 static inline int is_lambda(object *exp)
 {
     return is_tagged_list(exp, lookup_symbol("lambda"));
+}
+
+
+static inline int is_let(object *exp)
+{
+    return is_tagged_list(exp, lookup_symbol("let"));
 }
 
 
@@ -225,6 +242,63 @@ static inline object *lambda_body(object *exp)
 }
 
 
+static inline object *let_bindings(object *exp)
+{
+    return car(cdr(exp));
+}
+
+
+static inline object *let_body(object *exp)
+{
+    return cdr(cdr(exp));
+}
+
+
+static inline object *binding_variable(object *binding)
+{
+    return car(binding);
+}
+
+
+static inline object *binding_value(object *binding)
+{
+    if (!is_empty_list(cdr(cdr(binding)))) {
+        warn("ignoring extra expressions in let binding");
+    }
+    return car(cdr(binding));
+}
+
+
+static inline object *bindings_variables(object *bindings)
+{
+    return is_empty_list(bindings) ?
+        get_empty_list() :
+        cons (binding_variable(car(bindings)),
+                bindings_variables(cdr(bindings)));
+}
+
+
+static inline object *bindings_values(object *bindings)
+{
+    return is_empty_list(bindings) ?
+        get_empty_list() :
+        cons (binding_value(car(bindings)),
+                bindings_values(cdr(bindings)));
+}
+
+
+static inline object *let_variables(object *exp)
+{
+    return bindings_variables(let_bindings(exp));
+}
+
+
+static inline object *let_values(object *exp)
+{
+    return bindings_values(let_bindings(exp));
+}
+
+
 static inline object *application_operator(object *exp)
 {
     return car(exp);
@@ -301,6 +375,21 @@ static inline object *make_lambda(object *parameters, object *body)
 }
 
 
+static inline object *make_application(object *operator, object *operands)
+{
+    return cons(operator, operands);
+}
+
+
+static inline object *let_to_application(object *exp)
+{
+    return make_application(
+            make_lambda(let_variables(exp),
+                let_body(exp)),
+            let_values(exp));
+}
+
+
 /**** Evaluation ****/
 static object *eval_assignment(object *exp, object *env)
 {
@@ -369,6 +458,9 @@ tailcall:
     } else if (is_cond(exp)) {
         exp = cond_to_if(exp);
         goto tailcall;
+    } else if (is_let(exp)) {
+        exp = let_to_application(exp);
+        goto tailcall;
     } else if (is_application(exp)) {
         object *procedure = bs_eval(application_operator(exp), env);
         object *parameters = eval_parameters(application_operands(exp), env);
@@ -403,5 +495,6 @@ void init_special_forms(void)
     make_symbol("else");
     make_symbol("begin");
     make_symbol("lambda");
+    make_symbol("let");
 }
 

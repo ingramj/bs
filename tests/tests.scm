@@ -254,4 +254,8 @@ map                                     ; #<procedure>
 (type-of 10)                            ; integer
 (type-of #t)                            ; boolean
 (type-of #\c)                           ; dont-know
+(let ((x 1) (y 2)) (+ x y))             ; 3
+(define (func x) (let ((y 2)) (* x y))) ; ok
+(func 5)                                ; 10
+(func 18)                               ; 36
 
