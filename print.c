@@ -15,7 +15,7 @@ static void write_pair(FILE *out, object *exp);
 
 void bs_write(FILE *out, object *exp)
 {
-    if (exp == NULL) {
+    if (exp == NULL || is_invalid(exp)) {
         // don't write anything for null expressions.
         return;
     }
@@ -46,7 +46,7 @@ void bs_write(FILE *out, object *exp)
     } else if (is_procedure(exp)) {
         fprintf(out, "#<procedure>");
     } else {
-        error("unknown expression type");
+        warn("unknown expression type");
     }
 }
 

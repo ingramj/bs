@@ -37,7 +37,8 @@ static unsigned long hash(char const *name)
 object *insert_symbol(object *symbol)
 {
     if (symbol->type != SYMBOL) {
-        error("not a symbol");
+        warn("not a symbol");
+        return get_invalid();
     }
 
     if (lookup_symbol(symbol->value.symbol) != NULL) {

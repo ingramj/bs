@@ -52,7 +52,9 @@ int main(int argc, char *argv[])
     }
     object *obj = bs_read();
     while (obj) {
-        bs_write(stdout, bs_eval(obj, get_global_environment()));
+        if (!is_invalid(obj)) {
+            bs_write(stdout, bs_eval(obj, get_global_environment()));
+        }
         printf("\n");
         if (in == stdin) printf("bs> ");
         obj = bs_read();

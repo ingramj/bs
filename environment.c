@@ -65,7 +65,8 @@ object *lookup_variable_value(object *var, object *env)
         }
         env = enclosing_environment(env);
     }
-    error("variable '%s' is not bound", var->value.symbol);
+    warn("variable '%s' is not bound", var->value.symbol);
+    return get_invalid();
 }
 
 
@@ -84,7 +85,7 @@ void set_variable_value(object *var, object *val, object *env)
         }
         env = enclosing_environment(frame);
     }
-    error("variable '%s' is not bound", var->value.symbol);
+    warn("cannot set unbound variable '%s'", var->value.symbol);
 }
 
 

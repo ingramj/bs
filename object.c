@@ -11,6 +11,7 @@
 #include "error.h"
 #include "lexer.h"
 
+extern int is_invalid(object *obj);
 extern int is_number(object *obj);
 extern int is_boolean(object *obj);
 extern int is_character(object *obj);
@@ -28,9 +29,10 @@ extern int is_procedure(object *obj);
 
 static object *alloc_object(void);
 
-static object empty_list = {.type = EMPTY_LIST };
-static object true_object = {.type = BOOLEAN, .value.boolean = 1};
-static object false_object = {.type = BOOLEAN, .value.boolean = 0};
+static object invalid_object = { .type = INVALID };
+static object empty_list = { .type = EMPTY_LIST };
+static object true_object = { .type = BOOLEAN, .value.boolean = 1};
+static object false_object = { .type = BOOLEAN, .value.boolean = 0};
 
 
 static object *alloc_object(void)
@@ -41,6 +43,12 @@ static object *alloc_object(void)
     }
 
     return obj;
+}
+
+
+object *get_invalid(void)
+{
+    return &invalid_object;
 }
 
 
