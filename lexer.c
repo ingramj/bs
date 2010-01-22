@@ -377,7 +377,7 @@ static int lex_symbol(char const *start, char const **end, char **value)
             }
             out_pos = buffer + bytes;
         }
-        *out_pos++ = *in_pos++;
+        *out_pos++ = (char)tolower(*in_pos++);
         bytes++;
     }
 

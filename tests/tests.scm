@@ -19,6 +19,7 @@
 '(a . (b . c))                          ; (a b . c)
 '(a . (b . (c . ())))                   ; (a b c)
 'asdf                                   ; asdf
+'ASDF                                   ; asdf
 (define a 100)                          ; ok
 a                                       ; 100
 (set! a 150)                            ; ok
@@ -79,6 +80,7 @@ remainder                               ; #<procedure>
 (> 0 -10)                               ; #t
 eq?                                     ; #<procedure>
 (eq? 'a 'a)                             ; #t
+(eq? 'sdfg 'SDFG)                       ; #t
 (eq? #\a #\a)                           ; #t
 (eq? "abcde" "abcde")                   ; #t
 (eq? 'a 'b)                             ; #f
