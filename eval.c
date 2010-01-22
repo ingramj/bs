@@ -78,9 +78,8 @@ static object *eval_parameters(object *parameters, object *env);
 /**** Identification ****/
 static inline int is_self_evaluating(object *exp)
 {
-    object_type t = exp->type;
-    return (t == NUMBER || t == BOOLEAN || t == CHARACTER || t == STRING) ?
-        1 : 0;
+    return is_number(exp) || is_boolean(exp) || is_character(exp) ||
+        is_string(exp);
 }
 
 
