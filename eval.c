@@ -23,6 +23,8 @@ static inline int is_cond(object *exp);
 static inline int is_begin(object *exp);
 static inline int is_lambda(object *exp);
 static inline int is_let(object *exp);
+static inline int is_and(object *exp);
+static inline int is_or(object *exp);
 static inline int is_application(object *exp);
 
 
@@ -49,6 +51,8 @@ static inline object *bindings_variables(object *bindings);
 static inline object *bindings_values(object *bindings);
 static inline object *let_variables(object *exp);
 static inline object *let_values(object *exp);
+static inline object *and_tests(object *exp);
+static inline object *or_tests(object *exp);
 static inline object *application_operator(object *exp);
 static inline object *application_operands(object *exp);
 
@@ -142,6 +146,18 @@ static inline int is_lambda(object *exp)
 static inline int is_let(object *exp)
 {
     return is_tagged_list(exp, lookup_symbol("let"));
+}
+
+
+static inline int is_and(object *exp)
+{
+    return is_tagged_list(exp, lookup_symbol("and"));
+}
+
+
+static inline int is_or(object *exp)
+{
+    return is_tagged_list(exp, lookup_symbol("or"));
 }
 
 
@@ -299,6 +315,18 @@ static inline object *let_values(object *exp)
 }
 
 
+static inline object *and_tests(object *exp)
+{
+    return cdr(exp);
+}
+
+
+static inline object *or_tests(object *exp)
+{
+    return cdr(exp);
+}
+
+
 static inline object *application_operator(object *exp)
 {
     return car(exp);
@@ -433,7 +461,7 @@ tailcall:
     } else if (is_definition(exp)) {
         return eval_definition(exp, env);
     } else if (is_if(exp)) {
-        if (!is_false(bs_eval(if_predicate(exp), env))) {
+        if (is_true(bs_eval(if_predicate(exp), env))) {
             exp = if_consequent(exp);
         } else {
             exp = if_alternate(exp);
@@ -460,6 +488,36 @@ tailcall:
         goto tailcall;
     } else if (is_let(exp)) {
         exp = let_to_application(exp);
+        goto tailcall;
+    } else if (is_and(exp)) {
+        exp = and_tests(exp);
+        if (is_empty_list(exp)) {
+            return get_boolean(1);
+        }
+        object *result;
+        while (!is_empty_list(cdr(exp))) {
+            result = bs_eval(car(exp), env);
+            if (is_false(result)) {
+                return result;
+            }
+            exp = cdr(exp);
+        }
+        exp = car(exp);
+        goto tailcall;
+    } else if (is_or(exp)) {
+        exp = or_tests(exp);
+        if (is_empty_list(exp)) {
+            return get_boolean(0);
+        }
+        object *result;
+        while (!is_empty_list(cdr(exp))) {
+            result = bs_eval(car(exp), env);
+            if (is_true(result)) {
+                return result;
+            }
+            exp = cdr(exp);
+        }
+        exp = car(exp);
         goto tailcall;
     } else if (is_application(exp)) {
         object *procedure = bs_eval(application_operator(exp), env);
@@ -496,5 +554,7 @@ void init_special_forms(void)
     make_symbol("begin");
     make_symbol("lambda");
     make_symbol("let");
+    make_symbol("and");
+    make_symbol("or");
 }
 

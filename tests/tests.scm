@@ -161,6 +161,13 @@ procedure?                              ; #<procedure>
 (procedure? '+)                         ; #f
 (procedure? "+")                        ; #f
 (procedure? procedure?)                 ; #t
+(and (char? #\n) (integer? 10))         ; #t
+(and (char? #\n) #f (integer? 10))      ; #f
+(and)                                   ; #t
+(or (char? #\n) (integer? 10) #f)       ; #t
+(or #f (char? #\n) (integer? 10))       ; #t
+(or #f)                                 ; #f
+(or)                                    ; #f
 cons                                    ; #<procedure>
 (cons 'a 'b)                            ; (a . b)
 (cons 'a (cons 'b 'c))                  ; (a b . c)

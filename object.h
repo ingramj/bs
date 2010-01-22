@@ -52,6 +52,7 @@ inline int is_number(object *obj) { return obj->type == NUMBER; }
 
 object *get_boolean(int value);
 int is_false(object *obj);
+inline int is_true(object *obj) { return !is_false(obj); }
 inline int is_boolean(object *obj) { return obj->type == BOOLEAN; }
 
 object *make_character(char value);

@@ -14,6 +14,7 @@
 extern int is_invalid(object *obj);
 extern int is_number(object *obj);
 extern int is_boolean(object *obj);
+extern int is_true(object *obj);
 extern int is_character(object *obj);
 extern int is_string(object *obj);
 extern int is_symbol(object *obj);

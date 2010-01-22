@@ -29,6 +29,8 @@ Special Forms:
     lambda
     let
     begin
+    and
+    or
 Procedures:
     null?
     boolean?
