@@ -10,6 +10,7 @@
 #include <stdarg.h>
 
 #include "error.h"
+#include "port.h"
 
 #ifdef DEBUG
 static error_level current_level = INFO;
@@ -34,24 +35,28 @@ void set_error_level(error_level level)
 }
 
 
-void eprintf(error_level level, char const * const file, int line,
+void print_error(error_level level, char const * const file, int line,
         char const * const func, char const * const fmt, ...)
 {
     if (level > current_level)
         return;
 
-    (void)fflush(stdout);
-    fprintf(stderr, "%s\t%s:%d:%s: ", level_names[level], file, line, func);
+    (void)fflush(get_current_output_port()->value.port.file);
+    write_to_error_port("%s\t%s:%d:%s: ",
+            level_names[level],
+            file,
+            line,
+            func);
 
     va_list arg_list;
     va_start(arg_list, fmt);
-    vfprintf(stderr, fmt, arg_list);
+    write_to_error_port(fmt, arg_list);
     va_end(arg_list);
 
     if (fmt[0] != '\0' && fmt[strlen(fmt) - 1] == ':') {
-        fprintf(stderr, " %s", strerror(errno));
+        write_to_error_port(" %s", strerror(errno));
     }
 
-    fprintf(stderr, "\n");
+    write_to_error_port("\n");
 }
 

@@ -473,7 +473,9 @@ static object *eval_parameters(object *parameters, object *env)
 object *bs_eval(object *exp, object *env)
 {
 tailcall:
-    if (is_self_evaluating(exp)) {
+    if (is_empty_list(exp)) {
+        error("unable to evaluate empty list");
+    } else if (is_self_evaluating(exp)) {
         return exp;
     } else if (is_variable(exp)) {
         return lookup_variable_value(exp, env);
