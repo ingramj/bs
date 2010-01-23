@@ -10,8 +10,10 @@
 #include "table.h"
 #include "error.h"
 #include "lexer.h"
+#include "file.h"
 
 extern int is_invalid(object *obj);
+extern int is_end_of_file(object *obj);
 extern int is_number(object *obj);
 extern int is_boolean(object *obj);
 extern int is_true(object *obj);
@@ -28,12 +30,17 @@ extern int is_primitive_proc(object *obj);
 extern int is_compound_proc(object *obj);
 extern int is_procedure(object *obj);
 
+extern int is_port(object *obj);
+extern int is_input_port(object *obj);
+extern int is_output_port(object *obj);
+
 static object *alloc_object(void);
 
 static object invalid_object = { .type = INVALID };
+static object end_of_file_object = { .type = END_OF_FILE };
 static object empty_list = { .type = EMPTY_LIST };
-static object true_object = { .type = BOOLEAN, .value.boolean = 1};
-static object false_object = { .type = BOOLEAN, .value.boolean = 0};
+static object true_object = { .type = BOOLEAN, .value.boolean = 1 };
+static object false_object = { .type = BOOLEAN, .value.boolean = 0 };
 
 
 static object *alloc_object(void)
@@ -50,6 +57,12 @@ static object *alloc_object(void)
 object *get_invalid(void)
 {
     return &invalid_object;
+}
+
+
+object *get_end_of_file(void)
+{
+    return &end_of_file_object;
 }
 
 
@@ -162,5 +175,28 @@ object *make_compound_proc(object *parameters, object *body, object *env)
     proc->value.compound_proc.env = env;
 
     return proc;
+}
+
+
+object *make_input_port(char const *file)
+{
+    object *ip = alloc_object();
+    ip->type = PORT;
+    ip->value.port.mode = 0;
+    ip->value.port.state = 0;
+    open_port(ip, file);
+    // We should register a finalizer to close this file handle.
+    return ip;
+}
+
+object *make_output_port(char const *file)
+{
+    object *op = alloc_object();
+    op->type = PORT;
+    op->value.port.mode = 1;
+    op->value.port.state = 0;
+    open_port(op, file);
+    // We should register a finalizer to close this file handle.
+    return op;
 }
 

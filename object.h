@@ -7,6 +7,8 @@
 #ifndef OBJECT_H
 #define OBJECT_H
 
+#include <stdio.h>
+
 #include "error.h"
 
 typedef enum {
@@ -19,7 +21,9 @@ typedef enum {
     EMPTY_LIST,
     PAIR,
     PRIMITIVE_PROC,
-    COMPOUND_PROC
+    COMPOUND_PROC,
+    END_OF_FILE,
+    PORT
 } object_type;
 
 
@@ -40,12 +44,20 @@ typedef struct object {
             struct object *body;
             struct object *env;
         } compound_proc;
+        struct {
+            int mode;   // 0 for input, 1 for output
+            int state;  // -1 for eof, 0 for closed, 1 for open
+            FILE *file;
+        } port;
     } value;
     object_type type;
 } object;
 
 object *get_invalid(void);
 inline int is_invalid(object *obj) { return obj->type == INVALID; }
+
+object *get_end_of_file(void);
+inline int is_end_of_file(object *obj) { return obj->type == END_OF_FILE; }
 
 object *make_number(long value);
 inline int is_number(object *obj) { return obj->type == NUMBER; }
@@ -111,6 +123,21 @@ inline int is_compound_proc(object *obj) { return obj->type == COMPOUND_PROC; }
 inline int is_procedure(object *obj)
 {
     return is_primitive_proc(obj) || is_compound_proc(obj);
+}
+
+
+object *make_input_port(char const *file);
+object *make_output_port(char const *file);
+inline int is_port(object *obj) { return obj->type == PORT; }
+
+inline int is_input_port(object *obj)
+{
+    return is_port(obj) && obj->value.port.mode == 0;
+}
+
+inline int is_output_port(object *obj)
+{
+    return is_port(obj) && obj->value.port.mode == 1;
 }
 
 #endif

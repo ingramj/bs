@@ -48,7 +48,7 @@ object *bs_read(void)
         t = get_token();
     }
 
-    return NULL;
+    return get_end_of_file();
 }
 
 

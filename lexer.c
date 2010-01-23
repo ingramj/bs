@@ -15,9 +15,6 @@
 #include "file.h"
 #include "error.h"
 
-/**** Input reading ****/
-static long read_line(char **bufptr);
-
 /**** Lexical analysis ****/
 static void tokenize_line(void);
 static int is_delim(char c);
@@ -48,66 +45,11 @@ token *get_token(void)
 }
 
 
-/* Reads in a line of input, ended by a newline, null, or end of file.
- *
- * Takes the address of a pointer to const char, which is set to point
- * to the resulting null-terminated string. Returns the number of
- * characters read, or -1 on EOF.
- */
-static long read_line(char **bufptr)
-{
-    FILE *input_file = get_input_file();
-    if (input_file == NULL) {
-        set_input_file(stdin);
-    }
-
-    char *input_buffer = NULL;
-    size_t size = 128;
-    input_buffer = GC_REALLOC(input_buffer, size);
-    if (input_buffer == NULL) {
-        error("unable to allocate input buffer:");
-    }
-
-    int c = fgetc(input_file);
-    if (c == EOF) {
-        *bufptr = NULL;
-        return -1;
-    }
-
-    long bytes = 1;
-    char *pos = input_buffer;
-    while (c != EOF && c != '\0') {
-        // resize the input buffer, if necessary.
-        if (bytes > (long)(size - 1)) {
-            size += 128;
-            input_buffer = GC_REALLOC(input_buffer, size);
-            if (input_buffer == NULL) {
-                error("unable to allocate input buffer:");
-            }
-            pos = input_buffer + bytes - 1;
-        }
-
-        *pos++ = (char)c;
-        if (c == '\n') {
-            break;
-        }
-
-        c = fgetc(input_file);
-        bytes++;
-    }
-
-    *pos = '\0';
-
-    *bufptr = input_buffer;
-    return bytes;
-}
-
-
 /**** Lexical analysis ****/
 void tokenize_line(void)
 {
     char *buffer;
-    long len = read_line(&buffer);
+    long len = read_line(get_current_input_port(), &buffer);
 
     if (len < 0) {
         add_token_to_queue(alloc_token());

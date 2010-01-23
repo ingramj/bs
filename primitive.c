@@ -488,21 +488,18 @@ static object *load_proc(object *arguments)
     require_string(car(arguments), "load");
 
     char const *src_file = car(arguments)->value.string;
-    FILE *in = fopen(src_file, "r");
-    if (in == NULL) {
-        warn("unable to open %s:", src_file);
-        return get_invalid();
-    }
+    object *input_port = make_input_port(src_file);
 
-    FILE *prev_file = get_input_file();
-    set_input_file(in);
+    object *prev_port = get_current_input_port();
+    set_current_input_port(input_port);
+
     object *obj = bs_read();
-    while (obj) {
+    while (!is_end_of_file(obj)) {
         bs_eval(obj, get_global_environment());
         obj = bs_read();
     }
-    set_input_file(prev_file);
-    fclose(in);
+    set_current_input_port(prev_port);
+    close_port(input_port);
 
     return lookup_symbol("ok");
 }

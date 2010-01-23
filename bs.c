@@ -26,6 +26,7 @@ void init_system(void)
     init_special_forms();
     init_environments();
     init_primitives();
+    init_standard_ports();
 }
 
 
@@ -33,30 +34,29 @@ int main(int argc, char *argv[])
 {
     init_system();
 
-    FILE *in = stdin;
+    object *input_port;
     if (argc == 2) {
-        in = fopen(argv[1], "r");
-        if (in == NULL) {
-            error("could not read file %s:", argv[1]);
-        }
+        input_port = make_input_port(argv[1]);
     } else if (argc > 2) {
         printf("usage: bs [infile]\n");
         exit(1);
+    } else {
+        input_port = get_standard_input_port();
     }
 
-    set_input_file(in);
+    set_current_input_port(input_port);
 
-    if(in == stdin) {
+    if(input_port == get_standard_input_port()) {
         printf("Welcome to the bs REPL. Press ctrl-d to quit.\n");
         printf("bs> ");
     }
     object *obj = bs_read();
-    while (obj) {
+    while (!is_end_of_file(obj)) {
         if (!is_invalid(obj)) {
             bs_write(stdout, bs_eval(obj, get_global_environment()));
         }
         printf("\n");
-        if (in == stdin) printf("bs> ");
+        if (input_port == get_standard_input_port()) printf("bs> ");
         obj = bs_read();
     }
 
