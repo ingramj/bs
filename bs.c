@@ -12,10 +12,10 @@
 #include "eval.h"
 #include "lexer.h"
 #include "object.h"
-#include "parser.h"
 #include "port.h"
 #include "primitive.h"
 #include "table.h"
+#include "read.h"
 #include "write.h"
 
 
@@ -47,8 +47,8 @@ int main(int argc, char *argv[])
     set_current_input_port(input_port);
 
     if(input_port == get_standard_input_port()) {
-        port_printf("Welcome to the bs REPL. Press ctrl-d to quit.\n");
-        port_printf("bs> ");
+        write_to_output_port("Welcome to the bs REPL. Press ctrl-d to quit.\n");
+        write_to_output_port("bs> ");
     }
 
     object *obj = bs_read();
@@ -56,14 +56,14 @@ int main(int argc, char *argv[])
         if (!is_invalid(obj)) {
             bs_write(bs_eval(obj, get_global_environment()));
         }
-        port_printf("\n");
+        write_to_output_port("\n");
         if (input_port == get_standard_input_port()) {
-            port_printf("bs> ");
+            write_to_output_port("bs> ");
         }
         obj = bs_read();
     }
 
-    port_printf("\n");
+    write_to_output_port("\n");
 
     return 0;
 }

@@ -33,6 +33,8 @@ inline int port_is_eof(object *p) { return p->value.port.state == -1; }
 int read_char();
 long read_line(char **bufptr);
 
-void port_printf(char const * const fmt, ...);
+void write_to_output_port(char const * const fmt, ...);
+void write_to_error_port(char const * const fmt, ...);
+
 #endif
 

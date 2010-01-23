@@ -15,7 +15,6 @@ extern int port_is_open(object *p);
 extern int port_is_closed(object *p);
 extern int port_is_eof(object *p);
 
-
 static object standard_input_port;
 static object standard_output_port;
 static object standard_error_port;
@@ -23,6 +22,7 @@ static object standard_error_port;
 static object *current_input_port = &standard_input_port;
 static object *current_output_port = &standard_output_port;
 static object *current_error_port = &standard_error_port;
+
 
 void init_standard_ports(void)
 {
@@ -227,7 +227,7 @@ long read_line(char **bufptr)
 }
 
 
-void port_printf(char const * const fmt, ...)
+void write_to_output_port(char const * const fmt, ...)
 {
     if (port_is_closed(current_output_port)) {
         error("port is closed");
@@ -236,6 +236,19 @@ void port_printf(char const * const fmt, ...)
     va_list arg_list;
     va_start(arg_list, fmt);
     vfprintf(current_output_port->value.port.file, fmt, arg_list);
+    va_end(arg_list);
+}
+
+
+void write_to_error_port(char const * const fmt, ...)
+{
+    if (port_is_closed(current_error_port)) {
+        error("port is closed");
+    }
+
+    va_list arg_list;
+    va_start(arg_list, fmt);
+    vfprintf(current_error_port->value.port.file, fmt, arg_list);
     va_end(arg_list);
 }
 

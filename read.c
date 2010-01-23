@@ -1,4 +1,4 @@
-/* Parser for a Scheme-like language.
+/* Expression reader.
  *
  * Copyright (c) 2010 James E. Ingram
  * See the LICENSE file for terms of use.
@@ -9,7 +9,7 @@
 #include "error.h"
 #include "lexer.h"
 #include "object.h"
-#include "parser.h"
+#include "read.h"
 #include "table.h"
 
 static object *read_pair(void);

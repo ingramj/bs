@@ -1,11 +1,11 @@
-/* Parser for a Scheme-like language.
+/* Expressiong reader.
  *
  * Copyright (c) 2010 James E. Ingram
  * See the LICENSE file for terms of use.
  */
 
-#ifndef PARSER_H
-#define PARSER_H
+#ifndef READ_H
+#define READ_H
 
 #include <stdio.h>
 
@@ -13,7 +13,7 @@
 
 object *bs_read(void);
 
-#define PARSER_H
+#define READ_H
 
 #endif
 
