@@ -6,10 +6,10 @@
 
 #include <stdio.h>
 
-#include "print.h"
+#include "error.h"
 #include "object.h"
 #include "port.h"
-#include "error.h"
+#include "write.h"
 
 static void write_string(object *exp);
 static void write_pair(object *exp);

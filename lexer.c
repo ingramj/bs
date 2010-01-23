@@ -11,9 +11,9 @@
 #include <ctype.h>
 #include "gc.h"
 
+#include "error.h"
 #include "lexer.h"
 #include "port.h"
-#include "error.h"
 
 /**** Lexical analysis ****/
 static void tokenize_line(void);

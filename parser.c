@@ -6,11 +6,11 @@
 
 #include <stdio.h>
 
-#include "parser.h"
+#include "error.h"
 #include "lexer.h"
 #include "object.h"
+#include "parser.h"
 #include "table.h"
-#include "error.h"
 
 static object *read_pair(void);
 

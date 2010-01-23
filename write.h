@@ -4,16 +4,12 @@
  * See the LICENSE file for terms of use.
  */
 
-#ifndef PRINT_H
-#define PRINT_H
-
-#include <stdio.h>
+#ifndef WRITE_H
+#define WRITE_H
 
 #include "object.h"
 
 void bs_write(object *exp);
-
-#define PRINT_H
 
 #endif
 

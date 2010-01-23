@@ -7,16 +7,16 @@
 #include <stdio.h>
 #include "gc.h"
 
+#include "environment.h"
 #include "error.h"
+#include "eval.h"
+#include "lexer.h"
 #include "object.h"
 #include "parser.h"
-#include "lexer.h"
 #include "port.h"
-#include "eval.h"
-#include "environment.h"
 #include "primitive.h"
-#include "print.h"
 #include "table.h"
+#include "write.h"
 
 
 void init_system(void)

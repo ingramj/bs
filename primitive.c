@@ -11,14 +11,14 @@
 #include <errno.h>
 #include "gc.h"
 
-#include "primitive.h"
-#include "parser.h"
-#include "error.h"
-#include "object.h"
-#include "eval.h"
 #include "environment.h"
-#include "table.h"
+#include "error.h"
+#include "eval.h"
+#include "object.h"
+#include "parser.h"
 #include "port.h"
+#include "primitive.h"
+#include "table.h"
 
 #define defprim(name, proc) \
     define_variable(make_symbol(name), \

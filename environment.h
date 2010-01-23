@@ -7,10 +7,7 @@
 #ifndef ENVIRONMENT_H
 #define ENVIRONMENT_H
 
-#include "eval.h"
-#include "table.h"
 #include "object.h"
-#include "error.h"
 
 void init_environments(void);
 object *get_global_environment(void);

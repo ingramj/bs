@@ -7,9 +7,9 @@
 #include <string.h>
 #include "gc.h"
 
-#include "table.h"
-#include "object.h"
 #include "error.h"
+#include "object.h"
+#include "table.h"
 
 
 struct table_entry {

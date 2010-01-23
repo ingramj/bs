@@ -8,8 +8,8 @@
 #include <stdarg.h>
 #include "gc.h"
 
-#include "port.h"
 #include "error.h"
+#include "port.h"
 
 extern int port_is_open(object *p);
 extern int port_is_closed(object *p);

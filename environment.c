@@ -5,10 +5,10 @@
  */
 
 #include "environment.h"
-#include "eval.h"
-#include "table.h"
-#include "object.h"
 #include "error.h"
+#include "eval.h"
+#include "object.h"
+#include "table.h"
 
 /* Environment model:
  * An environment is a list of frames.

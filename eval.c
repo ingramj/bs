@@ -4,11 +4,11 @@
  * See the LICENSE file for terms of use.
  */
 
-#include "eval.h"
 #include "environment.h"
-#include "table.h"
-#include "object.h"
 #include "error.h"
+#include "eval.h"
+#include "object.h"
+#include "table.h"
 
 /**** Identification ****/
 static inline int is_self_evaluating(object *exp);

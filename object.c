@@ -6,11 +6,10 @@
 
 #include "gc.h"
 
-#include "object.h"
-#include "table.h"
 #include "error.h"
-#include "lexer.h"
+#include "object.h"
 #include "port.h"
+#include "table.h"
 
 extern int is_invalid(object *obj);
 extern int is_end_of_file(object *obj);

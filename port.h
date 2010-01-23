@@ -7,8 +7,6 @@
 #ifndef PORT_H
 #define PORT_H
 
-#include <stdio.h>
-
 #include "object.h"
 
 void init_standard_ports(void);
