@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
     if (argc == 2) {
         input_port = make_input_port(argv[1]);
     } else if (argc > 2) {
-        printf("usage: bs [infile]\n");
+        write_to_output_port("usage: bs [infile]\n");
         exit(1);
     } else {
         input_port = get_standard_input_port();
@@ -47,8 +47,8 @@ int main(int argc, char *argv[])
     set_current_input_port(input_port);
 
     if(input_port == get_standard_input_port()) {
-        write_to_output_port("Welcome to the bs REPL. Press ctrl-d to quit.\n");
-        write_to_output_port("bs> ");
+        write_to_output_port("Welcome to the bs REPL. Press ctrl-d to quit.");
+        write_to_output_port("\nbs> ");
     }
 
     object *obj = bs_read();
