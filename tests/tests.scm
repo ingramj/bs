@@ -267,4 +267,8 @@ map                                     ; #<procedure>
 (define (func x) (let ((y 2)) (* x y))) ; ok
 (func 5)                                ; 10
 (func 18)                               ; 36
+apply                                   ; #<procedure>
+(apply + '(1 2 3))                      ; 6
+(apply symbol? '(asfd))                 ; #t
+(apply (lambda (x) (+ x 1)) '(4))       ; 5
 
