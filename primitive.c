@@ -508,6 +508,13 @@ static object *load_proc(object *arguments)
 }
 
 
+object *apply_proc(object *arguments)
+{
+    (void)arguments;    // unused argument.
+    error("something's real bad wrong if this function was called");
+}
+
+
 void init_primitives(void)
 {
     defprim("eq?", eq_proc);
@@ -542,5 +549,6 @@ void init_primitives(void)
     defprim("symbol->string", symbol_to_string_proc);
     defprim("string->symbol", string_to_symbol_proc);
     defprim("load", load_proc);
+    defprim("apply", apply_proc);
 }
 

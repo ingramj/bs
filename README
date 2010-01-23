@@ -63,6 +63,7 @@ Procedures:
     symbol->string
     string->symbol
     load
+    apply
 
 
 Compilation

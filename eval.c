@@ -10,7 +10,6 @@
 #include "object.h"
 #include "error.h"
 
-
 /**** Identification ****/
 static inline int is_self_evaluating(object *exp);
 static inline int is_tagged_list(object *exp, object *tag);
@@ -53,6 +52,8 @@ static inline object *let_variables(object *exp);
 static inline object *let_values(object *exp);
 static inline object *and_tests(object *exp);
 static inline object *or_tests(object *exp);
+static inline object *apply_operator(object *arguments);
+static inline object *apply_operands(object *arguments);
 static inline object *application_operator(object *exp);
 static inline object *application_operands(object *exp);
 
@@ -67,6 +68,7 @@ static inline object *make_begin(object *exp);
 static inline object *make_lambda(object *parameters, object *body);
 static inline object *make_application(object *operator, object *operands);
 static inline object *let_to_application(object *exp);
+static object *prepare_apply_operands(object *arguments);
 
 
 /**** Evaluation ****/
@@ -74,6 +76,7 @@ static object *eval_assignment(object *exp, object *env);
 static object *eval_definition(object *exp, object *env);
 static object *eval_parameters(object *parameters, object *env);
 
+extern object *apply_proc(object *arguments);   // from primitive.c
 
 /**** Identification ****/
 static inline int is_self_evaluating(object *exp)
@@ -326,6 +329,18 @@ static inline object *or_tests(object *exp)
 }
 
 
+static inline object *apply_operator(object *arguments)
+{
+    return car(arguments);
+}
+
+
+static inline object *apply_operands(object *arguments)
+{
+    return prepare_apply_operands(cdr(arguments));
+}
+
+
 static inline object *application_operator(object *exp)
 {
     return car(exp);
@@ -414,6 +429,16 @@ static inline object *let_to_application(object *exp)
             make_lambda(let_variables(exp),
                 let_body(exp)),
             let_values(exp));
+}
+
+
+static object *prepare_apply_operands(object *arguments)
+{
+    if (is_empty_list(cdr(arguments))) {
+        return car(arguments);
+    } else {
+        return cons(car(arguments), prepare_apply_operands(cdr(arguments)));
+    }
 }
 
 
@@ -521,6 +546,14 @@ tailcall:
     } else if (is_application(exp)) {
         object *procedure = bs_eval(application_operator(exp), env);
         object *parameters = eval_parameters(application_operands(exp), env);
+
+        // handle apply specially for tailcall requirement.
+        if (is_primitive_proc(procedure) &&
+                procedure->value.primitive_proc == apply_proc) {
+            procedure = apply_operator(parameters);
+            parameters = apply_operands(parameters);
+        }
+
         if (is_primitive_proc(procedure)) {
             return (procedure->value.primitive_proc)(parameters);
         } else if (is_compound_proc(procedure)) {
