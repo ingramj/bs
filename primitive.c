@@ -20,7 +20,7 @@
 #include "read.h"
 #include "table.h"
 
-#define defprim(name, proc) \
+#define defproc(name, proc) \
     define_variable(make_symbol(name), \
             make_primitive_proc(proc), \
             get_global_environment())
@@ -75,6 +75,7 @@
     }
 
 
+/**** Equality and type predicates ****/
 static object *eq_proc(object *arguments)
 {
     require_exactly_two(arguments, "eq?");
@@ -163,6 +164,7 @@ static object *is_procedure_proc(object *arguments)
 }
 
 
+/**** Arithmetic ****/
 static object *add_proc(object *arguments)
 {
     long result = 0;
@@ -293,6 +295,7 @@ static object *num_gt_proc(object *arguments)
 }
 
 
+/**** List manipulation ****/
 static object *cons_proc(object *arguments)
 {
     require_exactly_two(arguments, "cons");
@@ -363,6 +366,7 @@ static object *list_proc(object *arguments)
 }
 
 
+/**** Type conversion ****/
 static object *char_to_integer_proc(object *arguments)
 {
     require_exactly_one(arguments, "char->integer");
@@ -467,6 +471,7 @@ static object *string_to_symbol_proc(object *arguments)
 }
 
 
+/**** Input/Output ****/
 static object *load_proc(object *arguments)
 {
     require_exactly_one(arguments, "load");
@@ -490,6 +495,7 @@ static object *load_proc(object *arguments)
 }
 
 
+/**** Eval/Apply ****/
 object *apply_proc(object *arguments)
 {
     (void)arguments;    // unused argument.
@@ -499,38 +505,38 @@ object *apply_proc(object *arguments)
 
 void init_primitives(void)
 {
-    defprim("eq?", eq_proc);
-    defprim("null?", is_null_proc);
-    defprim("boolean?", is_boolean_proc);
-    defprim("symbol?", is_symbol_proc);
-    defprim("integer?", is_integer_proc);
-    defprim("char?", is_char_proc);
-    defprim("string?", is_string_proc);
-    defprim("pair?", is_pair_proc);
-    defprim("list?", is_list_proc);
-    defprim("procedure?", is_procedure_proc);
-    defprim("+", add_proc);
-    defprim("-", sub_proc);
-    defprim("*", mult_proc);
-    defprim("quotient", quotient_proc);
-    defprim("remainder", remainder_proc);
-    defprim("=", num_eq_proc);
-    defprim("<", num_lt_proc);
-    defprim(">", num_gt_proc);
-    defprim("cons", cons_proc);
-    defprim("car", car_proc);
-    defprim("set-car!", set_car_proc);
-    defprim("cdr", cdr_proc);
-    defprim("set-cdr!", set_cdr_proc);
-    defprim("length", length_proc);
-    defprim("list", list_proc);
-    defprim("char->integer", char_to_integer_proc);
-    defprim("integer->char", integer_to_char_proc);
-    defprim("number->string", number_to_string_proc);
-    defprim("string->number", string_to_number_proc);
-    defprim("symbol->string", symbol_to_string_proc);
-    defprim("string->symbol", string_to_symbol_proc);
-    defprim("load", load_proc);
-    defprim("apply", apply_proc);
+    defproc("eq?", eq_proc);
+    defproc("null?", is_null_proc);
+    defproc("boolean?", is_boolean_proc);
+    defproc("symbol?", is_symbol_proc);
+    defproc("integer?", is_integer_proc);
+    defproc("char?", is_char_proc);
+    defproc("string?", is_string_proc);
+    defproc("pair?", is_pair_proc);
+    defproc("list?", is_list_proc);
+    defproc("procedure?", is_procedure_proc);
+    defproc("+", add_proc);
+    defproc("-", sub_proc);
+    defproc("*", mult_proc);
+    defproc("quotient", quotient_proc);
+    defproc("remainder", remainder_proc);
+    defproc("=", num_eq_proc);
+    defproc("<", num_lt_proc);
+    defproc(">", num_gt_proc);
+    defproc("cons", cons_proc);
+    defproc("car", car_proc);
+    defproc("set-car!", set_car_proc);
+    defproc("cdr", cdr_proc);
+    defproc("set-cdr!", set_cdr_proc);
+    defproc("length", length_proc);
+    defproc("list", list_proc);
+    defproc("char->integer", char_to_integer_proc);
+    defproc("integer->char", integer_to_char_proc);
+    defproc("number->string", number_to_string_proc);
+    defproc("string->number", string_to_number_proc);
+    defproc("symbol->string", symbol_to_string_proc);
+    defproc("string->symbol", string_to_symbol_proc);
+    defproc("load", load_proc);
+    defproc("apply", apply_proc);
 }
 
