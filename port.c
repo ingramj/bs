@@ -1,13 +1,14 @@
-/* Input file handling.
+/* I/O port handling.
  *
  * Copyright (c) 2010 James E. Ingram
  * See the LICENSE file for terms of use.
  */
 
 #include <stdio.h>
+#include <stdarg.h>
 #include "gc.h"
 
-#include "file.h"
+#include "port.h"
 #include "error.h"
 
 extern int port_is_open(object *p);
@@ -153,18 +154,18 @@ void close_port(object *p)
 }
 
 
-int read_char(object *p)
+int read_char(void)
 {
-    if (port_is_closed(p)) {
+    if (port_is_closed(current_input_port)) {
         error("port is closed");
     }
 
-    int c = fgetc(p->value.port.file);
+    int c = fgetc(current_input_port->value.port.file);
     if (c == EOF) {
-        if (ferror(p->value.port.file)) {
+        if (ferror(current_input_port->value.port.file)) {
             error("error reading from port:");
         } else {
-            p->value.port.state = -1;
+            current_input_port->value.port.state = -1;
         }
     }
 
@@ -178,9 +179,9 @@ int read_char(object *p)
  * to the resulting null-terminated string. Returns the number of
  * characters read, or -1 on EOF.
  */
-long read_line(object *p, char **bufptr)
+long read_line(char **bufptr)
 {
-    if (port_is_closed(p)) {
+    if (port_is_closed(current_input_port)) {
         error("port is closed");
     }
 
@@ -191,7 +192,7 @@ long read_line(object *p, char **bufptr)
         error("unable to allocate input buffer:");
     }
 
-    int c = read_char(p);
+    int c = read_char();
     if (c == EOF) {
         *bufptr = NULL;
         return -1;
@@ -215,7 +216,7 @@ long read_line(object *p, char **bufptr)
             break;
         }
 
-        c = read_char(p);
+        c = read_char();
         bytes++;
     }
 
@@ -226,22 +227,15 @@ long read_line(object *p, char **bufptr)
 }
 
 
-void write_char(object *p, char c)
+void port_printf(char const * const fmt, ...)
 {
-    if (is_output_port(p) && port_is_open(p)) {
-        fprintf(p->value.port.file, "%c", c);
-    } else {
-        error("unable to write to port");
+    if (port_is_closed(current_output_port)) {
+        error("port is closed");
     }
-}
 
-
-void write_line(object *p, char const *line)
-{
-    if (is_output_port(p) && port_is_open(p)) {
-        fprintf(p->value.port.file, "%s", line);
-    } else {
-        error("unable to write to port");
-    }
+    va_list arg_list;
+    va_start(arg_list, fmt);
+    vfprintf(current_output_port->value.port.file, fmt, arg_list);
+    va_end(arg_list);
 }
 

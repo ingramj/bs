@@ -11,7 +11,7 @@
 #include "object.h"
 #include "parser.h"
 #include "lexer.h"
-#include "file.h"
+#include "port.h"
 #include "eval.h"
 #include "environment.h"
 #include "primitive.h"
@@ -47,25 +47,23 @@ int main(int argc, char *argv[])
     set_current_input_port(input_port);
 
     if(input_port == get_standard_input_port()) {
-        write_line(get_current_output_port(),
-                "Welcome to the bs REPL. Press ctrl-d to quit.\n");
-        write_line(get_current_output_port(), "bs> ");
+        port_printf("Welcome to the bs REPL. Press ctrl-d to quit.\n");
+        port_printf("bs> ");
     }
 
     object *obj = bs_read();
     while (!is_end_of_file(obj)) {
         if (!is_invalid(obj)) {
-            bs_write(get_current_output_port(),
-                    bs_eval(obj, get_global_environment()));
+            bs_write(bs_eval(obj, get_global_environment()));
         }
-        write_line(get_current_output_port(), "\n");
+        port_printf("\n");
         if (input_port == get_standard_input_port()) {
-            write_line(get_current_output_port(), "bs> ");
+            port_printf("bs> ");
         }
         obj = bs_read();
     }
 
-    write_line(get_current_output_port(), "\n");
+    port_printf("\n");
 
     return 0;
 }

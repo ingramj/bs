@@ -10,7 +10,7 @@
 #include "table.h"
 #include "error.h"
 #include "lexer.h"
-#include "file.h"
+#include "port.h"
 
 extern int is_invalid(object *obj);
 extern int is_end_of_file(object *obj);

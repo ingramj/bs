@@ -18,7 +18,7 @@
 #include "eval.h"
 #include "environment.h"
 #include "table.h"
-#include "file.h"
+#include "port.h"
 
 #define defprim(name, proc) \
     define_variable(make_symbol(name), \

@@ -8,88 +8,83 @@
 
 #include "print.h"
 #include "object.h"
-#include "file.h"
+#include "port.h"
 #include "error.h"
 
-static void write_string(object *p, object *exp);
-static void write_pair(object *p, object *exp);
+static void write_string(object *exp);
+static void write_pair(object *exp);
 
-void bs_write(object *p, object *exp)
+void bs_write(object *exp)
 {
     if (exp == NULL || is_invalid(exp)) {
         // don't write anything for null expressions.
         return;
     }
 
-    // For now, just access the file pointer directly.
-    FILE *out = p->value.port.file;
-
     if (is_number(exp)) {
-        fprintf(out, "%ld", exp->value.number);
+        port_printf("%ld", exp->value.number);
     } else if (is_boolean(exp)) {
-        fprintf(out, "#%c", is_false(exp) ? 'f' : 't');
+        port_printf("#%c", is_false(exp) ? 'f' : 't');
     } else if (is_character(exp)) {
-        fprintf(out, "#\\");
+        port_printf("#\\");
         if (exp->value.character == '\n') {
-            fprintf(out, "newline");
+            port_printf("newline");
         } else if (exp->value.character == ' ') {
-            fprintf(out, "space");
+            port_printf("space");
         } else {
-            fprintf(out, "%c", exp->value.character);
+            port_printf("%c", exp->value.character);
         }
     } else if (is_string(exp)) {
-        write_string(p, exp);
+        write_string(exp);
     } else if (is_symbol(exp)) {
-        fprintf(out, "%s", exp->value.symbol);
+        port_printf("%s", exp->value.symbol);
     } else if (is_empty_list(exp)) {
-        fprintf(out, "()");
+        port_printf("()");
     } else if (is_pair(exp)) {
-        fprintf(out, "(");
-        write_pair(p, exp);
-        fprintf(out, ")");
+        port_printf("(");
+        write_pair(exp);
+        port_printf(")");
     } else if (is_procedure(exp)) {
-        fprintf(out, "#<procedure>");
+        port_printf("#<procedure>");
     } else {
         warn("unknown expression type");
     }
 }
 
 
-static void write_string(object *p, object *exp)
+static void write_string(object *exp)
 {
-    FILE *out = p->value.port.file;
-    fprintf(out, "\"");
+    port_printf("\"");
     char const *pos = exp->value.string;
     while (*pos != '\0') {
         if (*pos == '\n') {
-            fprintf(out, "\\n");
+            port_printf("\\n");
         } else if (*pos == '"') {
-            fprintf(out, "\\\"");
+            port_printf("\\\"");
         } else if (*pos == '\\') {
-            fprintf(out, "\\\\");
+            port_printf("\\\\");
         } else {
-            fprintf(out, "%c", *pos);
+            port_printf("%c", *pos);
         }
         pos++;
     }
-    fprintf(out, "\"");
+    port_printf("\"");
 }
 
 
-static void write_pair(object *p, object *exp)
+static void write_pair(object *exp)
 {
-    FILE *out = p->value.port.file;
-    bs_write(p, car(exp));
+    bs_write(car(exp));
 
     object *cdr_obj = cdr(exp);
     if (is_pair(cdr_obj)) {
-        fprintf(out, " ");
-        write_pair(p, cdr_obj);
+        port_printf(" ");
+        write_pair(cdr_obj);
     } else if (is_empty_list(cdr_obj)) {
         return;
     } else {
-        fprintf(out, " . ");
-        bs_write(p, cdr_obj);
+        port_printf(" . ");
+        bs_write(cdr_obj);
     }
 }
 

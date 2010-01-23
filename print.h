@@ -11,7 +11,7 @@
 
 #include "object.h"
 
-void bs_write(object *p, object *exp);
+void bs_write(object *exp);
 
 #define PRINT_H
 

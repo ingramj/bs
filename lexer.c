@@ -12,7 +12,7 @@
 #include "gc.h"
 
 #include "lexer.h"
-#include "file.h"
+#include "port.h"
 #include "error.h"
 
 /**** Lexical analysis ****/
@@ -49,7 +49,7 @@ token *get_token(void)
 void tokenize_line(void)
 {
     char *buffer;
-    long len = read_line(get_current_input_port(), &buffer);
+    long len = read_line(&buffer);
 
     if (len < 0) {
         add_token_to_queue(alloc_token());

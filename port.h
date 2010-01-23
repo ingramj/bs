@@ -1,11 +1,11 @@
-/* Input file handling.
+/* I/O port handling.
  *
  * Copyright (c) 2010 James E. Ingram
  * See the LICENSE file for terms of use.
  */
 
-#ifndef FILE_H
-#define FILE_H
+#ifndef PORT_H
+#define PORT_H
 
 #include <stdio.h>
 
@@ -32,11 +32,9 @@ inline int port_is_open(object *p) { return p->value.port.state == 1; }
 inline int port_is_closed(object *p) { return p->value.port.state == 0; }
 inline int port_is_eof(object *p) { return p->value.port.state == -1; }
 
-int read_char(object *p);
-long read_line(object *p, char **bufptr);
+int read_char();
+long read_line(char **bufptr);
 
-void write_char(object *p, char c);
-void write_line(object *p, char const *line);
-
+void port_printf(char const * const fmt, ...);
 #endif
 
