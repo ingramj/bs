@@ -47,19 +47,26 @@ int main(int argc, char *argv[])
     set_current_input_port(input_port);
 
     if(input_port == get_standard_input_port()) {
-        printf("Welcome to the bs REPL. Press ctrl-d to quit.\n");
-        printf("bs> ");
+        write_line(get_current_output_port(),
+                "Welcome to the bs REPL. Press ctrl-d to quit.\n");
+        write_line(get_current_output_port(), "bs> ");
     }
+
     object *obj = bs_read();
     while (!is_end_of_file(obj)) {
         if (!is_invalid(obj)) {
-            bs_write(stdout, bs_eval(obj, get_global_environment()));
+            bs_write(get_current_output_port(),
+                    bs_eval(obj, get_global_environment()));
         }
-        printf("\n");
-        if (input_port == get_standard_input_port()) printf("bs> ");
+        write_line(get_current_output_port(), "\n");
+        if (input_port == get_standard_input_port()) {
+            write_line(get_current_output_port(), "bs> ");
+        }
         obj = bs_read();
     }
 
-    printf("\n");
+    write_line(get_current_output_port(), "\n");
+
+    return 0;
 }
 

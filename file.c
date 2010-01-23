@@ -228,14 +228,20 @@ long read_line(object *p, char **bufptr)
 
 void write_char(object *p, char c)
 {
-    (void)p;
-    (void)c;
+    if (is_output_port(p) && port_is_open(p)) {
+        fprintf(p->value.port.file, "%c", c);
+    } else {
+        error("unable to write to port");
+    }
 }
 
 
 void write_line(object *p, char const *line)
 {
-    (void)p;
-    (void)line;
+    if (is_output_port(p) && port_is_open(p)) {
+        fprintf(p->value.port.file, "%s", line);
+    } else {
+        error("unable to write to port");
+    }
 }
 
