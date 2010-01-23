@@ -16,7 +16,7 @@ static void write_pair(object *exp);
 
 void bs_write(object *exp)
 {
-    if (exp == NULL || is_invalid(exp)) {
+    if (exp == NULL) {
         // don't write anything for null expressions.
         return;
     }

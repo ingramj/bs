@@ -12,7 +12,6 @@
 #include "error.h"
 
 typedef enum {
-    INVALID,
     NUMBER,
     BOOLEAN,
     CHARACTER,
@@ -53,9 +52,6 @@ typedef struct object {
     object_type type;
 } object;
 
-object *get_invalid(void);
-inline int is_invalid(object *obj) { return obj->type == INVALID; }
-
 object *get_end_of_file(void);
 inline int is_end_of_file(object *obj) { return obj->type == END_OF_FILE; }
 
@@ -88,25 +84,25 @@ int is_list(object *obj);
 
 inline object *car(object *pair)
 {
-    if (pair->type != PAIR) { warn("not a pair"); return get_invalid(); }
+    if (pair->type != PAIR) { error("not a pair"); }
     return pair->value.pair.car;
 }
 
 inline void set_car(object *pair, object *obj)
 {
-    if (pair->type != PAIR) { warn("cannot set car of non-pair"); return; }
+    if (pair->type != PAIR) { error("cannot set car of non-pair"); }
     pair->value.pair.car = obj;
 }
 
 inline object *cdr(object *pair)
 {
-    if (pair->type != PAIR) { warn("not a pair"); return get_invalid(); }
+    if (pair->type != PAIR) { error("not a pair"); }
     return pair->value.pair.cdr;
 }
 
 inline void set_cdr(object *pair, object *obj)
 {
-    if (pair->type != PAIR) { warn("cannot set cdr of non-pair"); return; }
+    if (pair->type != PAIR) { error("cannot set cdr of non-pair"); }
     pair->value.pair.cdr = obj;
 }
 

@@ -387,8 +387,7 @@ static object *expand_clauses(object *clauses)
             if (is_empty_list(rest)) {
                 return sequence_to_exp(cond_actions(first));
             } else {
-                warn("else clause must be last in cond expression");
-                return get_invalid();
+                error("else clause must be last in cond expression");
             }
         } else {
             return make_if(cond_predicate(first),
@@ -498,8 +497,7 @@ tailcall:
     } else if (is_begin(exp)) {
         exp = begin_actions(exp);
         if (is_empty_list(exp)) {
-            warn("empty begin block");
-            return get_invalid();
+            error("empty begin block");
         }
         while (!is_empty_list(cdr(exp))) {
             bs_eval(car(exp), env);
@@ -564,12 +562,10 @@ tailcall:
             exp = make_begin(procedure->value.compound_proc.body);
             goto tailcall;
         } else {
-            warn("unable to apply unknown procedure type");
-            return get_invalid();
+            error("unable to apply unknown procedure type");
         }
     } else {
-        warn("unable to evaluate expression");
-        return get_invalid();
+        error("unable to evaluate expression");
     }
 }
 

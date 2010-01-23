@@ -53,9 +53,7 @@ int main(int argc, char *argv[])
 
     object *obj = bs_read();
     while (!is_end_of_file(obj)) {
-        if (!is_invalid(obj)) {
-            bs_write(bs_eval(obj, get_global_environment()));
-        }
+        bs_write(bs_eval(obj, get_global_environment()));
         write_to_output_port("\n");
         if (input_port == get_standard_input_port()) {
             write_to_output_port("bs> ");

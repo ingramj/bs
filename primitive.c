@@ -28,58 +28,50 @@
 
 #define require_exactly_one(args, name) \
     if (is_empty_list(args) || !is_empty_list(cdr(arguments))) { \
-        warn(name " requires a single argument"); \
-        return get_invalid(); \
+        error(name " requires a single argument"); \
     }
 
 
 #define require_exactly_two(args, name) \
     if (is_empty_list(args) || is_empty_list(cdr(args)) || \
             !is_empty_list(cdr(cdr(arguments)))) { \
-        warn(name " requires two arguments"); \
-        return get_invalid(); \
+        error(name " requires two arguments"); \
     }
 
 
 #define require_at_least_one(args, name) \
     if (is_empty_list(args)) { \
-        warn(name " requires at least one argument"); \
-        return get_invalid(); \
+        error(name " requires at least one argument"); \
     }
 
 
 #define require_at_least_two(args, name) \
     if (is_empty_list(args) || is_empty_list(cdr(args))) { \
-        warn(name " requires at least two arguments"); \
-        return get_invalid(); \
+        error(name " requires at least two arguments"); \
     }
 
 
 #define require_number(arg, name) \
     if (!is_number(arg)) { \
-        warn(name " called with non-numeric argument"); \
-        return get_invalid(); \
+        error(name " called with non-numeric argument"); \
     }
 
 
 #define require_string(arg, name) \
     if (!is_string(arg)) { \
-        warn(name " called with non-string argument"); \
-        return get_invalid(); \
+        error(name " called with non-string argument"); \
     }
 
 
 #define require_symbol(arg, name) \
     if (!is_symbol(arg)) { \
-        warn(name " called with non-symbol argument"); \
-        return get_invalid(); \
+        error(name " called with non-symbol argument"); \
     }
 
 
 #define require_pair(arg, name) \
     if (!is_pair(arg)) { \
-        warn(name " called with non-pair argument"); \
-        return get_invalid(); \
+        error(name " called with non-pair argument"); \
     }
 
 
@@ -225,8 +217,7 @@ static object *quotient_proc(object *arguments)
     require_number(n1, "quotient");
     require_number(n2, "quotient");
     if (n2->value.number == 0) {
-        warn("divide by zero");
-        return get_invalid();
+        error("divide by zero");
     }
     ldiv_t d = ldiv(n1->value.number, n2->value.number);
     return make_number(d.quot);
@@ -241,8 +232,7 @@ static object *remainder_proc(object *arguments)
     require_number(n1, "remainder");
     require_number(n2, "remainder");
     if (n2->value.number == 0) {
-        warn("divide by zero");
-        return get_invalid();
+        error("divide by zero");
     }
     ldiv_t d = ldiv(n1->value.number, n2->value.number);
     return make_number(d.rem);
@@ -363,8 +353,7 @@ static object *length_proc(object *arguments)
         arguments = cdr(arguments);
     }
 
-    warn("length requires a proper list as an argument");
-    return get_invalid();
+    error("length requires a proper list as an argument");
 }
 
 
@@ -378,8 +367,7 @@ static object *char_to_integer_proc(object *arguments)
 {
     require_exactly_one(arguments, "char->integer");
     if (!is_character(car(arguments))) {
-        warn("char->integer requires a character as an argument");
-        return get_invalid();
+        error("char->integer requires a character as an argument");
     }
     char value = car(arguments)->value.character;
     return make_number(value);
@@ -393,8 +381,7 @@ static object *integer_to_char_proc(object *arguments)
 
     long value = car(arguments)->value.number;
     if (value > CHAR_MAX || value < CHAR_MIN) {
-        warn("integer out of range for conversion to char");
-        return get_invalid();
+        error("integer out of range for conversion to char");
     }
 
     return make_character((char) value);
@@ -440,11 +427,9 @@ static object *string_to_number_proc(object *arguments)
     long num = strtol(s, &end, 0);
 
     if (end != (s + strlen(s))) {
-        warn("string->number argument does not look like a number");
-        return get_invalid();
+        error("string->number argument does not look like a number");
     } else if (errno) {
-        warn("unable to convert string to number:");
-        return get_invalid();
+        error("unable to convert string to number:");
     }
 
     return make_number(num);

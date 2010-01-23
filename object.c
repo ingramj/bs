@@ -11,7 +11,6 @@
 #include "port.h"
 #include "table.h"
 
-extern int is_invalid(object *obj);
 extern int is_end_of_file(object *obj);
 extern int is_number(object *obj);
 extern int is_boolean(object *obj);
@@ -35,7 +34,6 @@ extern int is_output_port(object *obj);
 
 static object *alloc_object(void);
 
-static object invalid_object = { .type = INVALID };
 static object end_of_file_object = { .type = END_OF_FILE };
 static object empty_list = { .type = EMPTY_LIST };
 static object true_object = { .type = BOOLEAN, .value.boolean = 1 };
@@ -50,12 +48,6 @@ static object *alloc_object(void)
     }
 
     return obj;
-}
-
-
-object *get_invalid(void)
-{
-    return &invalid_object;
 }
 
 

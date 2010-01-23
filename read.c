@@ -36,14 +36,11 @@ object *bs_read(void)
                 return cons(lookup_symbol("quote"),
                         cons(bs_read(), get_empty_list()));
             case TOK_RPAREN:
-                warn("unexpected closing parenthesis");
-                return get_invalid();
+                error("unexpected closing parenthesis");
             case TOK_DOT:
-                warn("dot outside of pair");
-                return get_invalid();
+                error("dot outside of pair");
             default:
-                warn("unknown token type %d", t->type);
-                return get_invalid();
+                error("unknown token type %d", t->type);
         }
         t = get_token();
     }
@@ -70,8 +67,7 @@ static object *read_pair(void)
 
         t = get_token();
         if (t->type != TOK_RPAREN) {
-            warn("pair is missing a closing parenthesis");
-            return get_invalid();
+            error("pair is missing a closing parenthesis");
         }
         return cons(car_obj, cdr_obj);
     } else {
@@ -80,3 +76,4 @@ static object *read_pair(void)
         return cons(car_obj, cdr_obj);
     }
 }
+
