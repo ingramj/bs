@@ -24,8 +24,8 @@ void init_system(void)
     GC_INIT();
     set_error_level(WARNING);
     init_special_forms();
-    init_environments();
-    init_primitives();
+    init_global_environment();
+    init_primitives(get_global_environment());
     init_standard_ports();
 }
 

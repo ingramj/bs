@@ -20,10 +20,16 @@
 #include "read.h"
 #include "table.h"
 
-#define defproc(name, proc) \
+#define defproc(name, proc, env) \
     define_variable(make_symbol(name), \
             make_primitive_proc(proc), \
-            get_global_environment())
+            env)
+
+
+#define require_zero(args, name) \
+    if (!is_empty_list(args)) { \
+        error(name " takes no arguments"); \
+    }
 
 
 #define require_exactly_one(args, name) \
@@ -503,40 +509,66 @@ object *apply_proc(object *arguments)
 }
 
 
-void init_primitives(void)
+object *interaction_environment_proc(object *arguments)
 {
-    defproc("eq?", eq_proc);
-    defproc("null?", is_null_proc);
-    defproc("boolean?", is_boolean_proc);
-    defproc("symbol?", is_symbol_proc);
-    defproc("integer?", is_integer_proc);
-    defproc("char?", is_char_proc);
-    defproc("string?", is_string_proc);
-    defproc("pair?", is_pair_proc);
-    defproc("list?", is_list_proc);
-    defproc("procedure?", is_procedure_proc);
-    defproc("+", add_proc);
-    defproc("-", sub_proc);
-    defproc("*", mult_proc);
-    defproc("quotient", quotient_proc);
-    defproc("remainder", remainder_proc);
-    defproc("=", num_eq_proc);
-    defproc("<", num_lt_proc);
-    defproc(">", num_gt_proc);
-    defproc("cons", cons_proc);
-    defproc("car", car_proc);
-    defproc("set-car!", set_car_proc);
-    defproc("cdr", cdr_proc);
-    defproc("set-cdr!", set_cdr_proc);
-    defproc("length", length_proc);
-    defproc("list", list_proc);
-    defproc("char->integer", char_to_integer_proc);
-    defproc("integer->char", integer_to_char_proc);
-    defproc("number->string", number_to_string_proc);
-    defproc("string->number", string_to_number_proc);
-    defproc("symbol->string", symbol_to_string_proc);
-    defproc("string->symbol", string_to_symbol_proc);
-    defproc("load", load_proc);
-    defproc("apply", apply_proc);
+    require_zero(arguments, "interaction-environment");
+    return get_global_environment();
+}
+
+
+object *null_environment_proc(object *arguments)
+{
+    require_zero(arguments, "null-environment");
+    return make_null_environment();
+}
+
+
+object *environment_proc(object *arguments)
+{
+    require_zero(arguments, "environment");
+    object *env = make_null_environment();
+    init_primitives(env);
+    return env;
+}
+
+
+void init_primitives(object *env)
+{
+    defproc("eq?", eq_proc, env);
+    defproc("null?", is_null_proc, env);
+    defproc("boolean?", is_boolean_proc, env);
+    defproc("symbol?", is_symbol_proc, env);
+    defproc("integer?", is_integer_proc, env);
+    defproc("char?", is_char_proc, env);
+    defproc("string?", is_string_proc, env);
+    defproc("pair?", is_pair_proc, env);
+    defproc("list?", is_list_proc, env);
+    defproc("procedure?", is_procedure_proc, env);
+    defproc("+", add_proc, env);
+    defproc("-", sub_proc, env);
+    defproc("*", mult_proc, env);
+    defproc("quotient", quotient_proc, env);
+    defproc("remainder", remainder_proc, env);
+    defproc("=", num_eq_proc, env);
+    defproc("<", num_lt_proc, env);
+    defproc(">", num_gt_proc, env);
+    defproc("cons", cons_proc, env);
+    defproc("car", car_proc, env);
+    defproc("set-car!", set_car_proc, env);
+    defproc("cdr", cdr_proc, env);
+    defproc("set-cdr!", set_cdr_proc, env);
+    defproc("length", length_proc, env);
+    defproc("list", list_proc, env);
+    defproc("char->integer", char_to_integer_proc, env);
+    defproc("integer->char", integer_to_char_proc, env);
+    defproc("number->string", number_to_string_proc, env);
+    defproc("string->number", string_to_number_proc, env);
+    defproc("symbol->string", symbol_to_string_proc, env);
+    defproc("string->symbol", string_to_symbol_proc, env);
+    defproc("load", load_proc, env);
+    defproc("apply", apply_proc, env);
+    defproc("interaction-environment", interaction_environment_proc, env);
+    defproc("null-environment", null_environment_proc, env);
+    defproc("environment", environment_proc, env);
 }
 

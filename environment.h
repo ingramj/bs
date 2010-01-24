@@ -9,8 +9,9 @@
 
 #include "object.h"
 
-void init_environments(void);
+void init_global_environment(void);
 object *get_global_environment(void);
+object *make_null_environment(void);
 
 object *lookup_variable_value(object *var, object *env);
 object *set_variable_value(object *var, object *val, object *env);

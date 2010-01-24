@@ -19,14 +19,20 @@
 static object *global_environment = NULL;
 
 
-void init_environments(void)
+void init_global_environment(void)
 {
-    global_environment = extend_environment(get_empty_list(), get_empty_list(),
-            get_empty_list());
+    global_environment = make_null_environment();
 }
 
 
 object *get_global_environment(void) { return global_environment; }
+
+
+object *make_null_environment(void)
+{
+    return extend_environment(get_empty_list(), get_empty_list(),
+            get_empty_list());
+}
 
 
 static inline object *first_frame(object *env) { return car(env); }

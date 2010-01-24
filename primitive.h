@@ -7,7 +7,7 @@
 #ifndef PRIMITIVE_H
 #define PRIMITIVE_H
 
-void init_primitives(void);
+void init_primitives(object *env);
 
 #define PRIMITIVE_H
 
