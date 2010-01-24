@@ -62,6 +62,14 @@ Procedures:
     string->number
     symbol->string
     string->symbol
+    input-port?
+    output-port?
+    current-input-port
+    current-output-port
+    open-input-file
+    open-output-file
+    close-input-port
+    close-output-port
     load
     apply
     eval

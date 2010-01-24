@@ -478,6 +478,76 @@ static object *string_to_symbol_proc(object *arguments)
 
 
 /**** Input/Output ****/
+static object *is_input_port_proc(object *arguments)
+{
+    require_exactly_one(arguments, "input-port?");
+    return get_boolean(is_input_port(car(arguments)));
+}
+
+
+static object *is_output_port_proc(object *arguments)
+{
+    require_exactly_one(arguments, "output-port?");
+    return get_boolean(is_output_port(car(arguments)));
+}
+
+
+static object *current_input_port_proc(object *arguments)
+{
+    require_zero(arguments, "current-input-port");
+    return get_current_input_port();
+}
+
+
+static object *current_output_port_proc(object *arguments)
+{
+    require_zero(arguments, "current-output-port");
+    return get_current_output_port();
+}
+
+
+static object *open_input_file_proc(object *arguments)
+{
+    require_exactly_one(arguments, "open-input-file");
+    require_string(car(arguments), "open-input-file");
+
+    return make_input_port(car(arguments)->value.string);
+}
+
+
+static object *open_output_file_proc(object *arguments)
+{
+    require_exactly_one(arguments, "open-output-file");
+    require_string(car(arguments), "open-output-file");
+
+    return make_output_port(car(arguments)->value.string);
+}
+
+
+static object *close_input_port_proc(object *arguments)
+{
+    require_exactly_one(arguments, "close-input-file");
+    if (!is_input_port(car(arguments))) {
+        error("close-input-port requires an input-port as an argument");
+    }
+
+    close_port(car(arguments));
+    return lookup_symbol("ok");
+}
+
+
+static object *close_output_port_proc(object *arguments)
+{
+    require_exactly_one(arguments, "close-output-port");
+    if (!is_output_port(car(arguments))) {
+        error("close-output-port requires an output-port as an argument");
+    }
+
+    close_port(car(arguments));
+    return lookup_symbol("ok");
+}
+
+
 static object *load_proc(object *arguments)
 {
     require_exactly_one(arguments, "load");
@@ -572,6 +642,14 @@ void init_primitives(object *env)
     defproc("string->number", string_to_number_proc, env);
     defproc("symbol->string", symbol_to_string_proc, env);
     defproc("string->symbol", string_to_symbol_proc, env);
+    defproc("input-port?", is_input_port_proc, env);
+    defproc("output-port?", is_output_port_proc, env);
+    defproc("current-input-port", current_input_port_proc, env);
+    defproc("current-output-port", current_output_port_proc, env);
+    defproc("open-input-file", open_input_file_proc, env);
+    defproc("open-output-file", open_output_file_proc, env);
+    defproc("close-input-port", close_input_port_proc, env);
+    defproc("close-output-port", close_output_port_proc, env);
     defproc("load", load_proc, env);
     defproc("apply", apply_proc, env);
     defproc("eval", eval_proc, env);

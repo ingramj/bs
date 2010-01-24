@@ -46,6 +46,10 @@ void bs_write(object *exp)
         write_to_output_port(")");
     } else if (is_procedure(exp)) {
         write_to_output_port("#<procedure>");
+    } else if (is_input_port(exp)) {
+        write_to_output_port("#<input-port>");
+    } else if (is_output_port(exp)) {
+        write_to_output_port("#<output-port>");
     } else {
         warn("unknown expression type");
     }
