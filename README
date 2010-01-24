@@ -64,6 +64,10 @@ Procedures:
     string->symbol
     load
     apply
+    eval
+    interaction-environment
+    null-environment
+    environment
 
 
 Compilation

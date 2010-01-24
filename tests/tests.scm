@@ -271,4 +271,10 @@ apply                                   ; #<procedure>
 (apply + '(1 2 3))                      ; 6
 (apply symbol? '(asfd))                 ; #t
 (apply (lambda (x) (+ x 1)) '(4))       ; 5
+interaction-environment                 ; #<procedure>
+null-environment                        ; #<procedure>
+environment                             ; #<procedure>
+(define env (environment))              ; ok
+(eval '(define z 25) env)               ; ok
+(eval 'z env)                           ; 25
 

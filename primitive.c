@@ -509,21 +509,28 @@ object *apply_proc(object *arguments)
 }
 
 
-object *interaction_environment_proc(object *arguments)
+object *eval_proc(object *arguments)
+{
+    (void)arguments;    // unused argument.
+    error("something's real bad wrong if this function was called");
+}
+
+
+static object *interaction_environment_proc(object *arguments)
 {
     require_zero(arguments, "interaction-environment");
     return get_global_environment();
 }
 
 
-object *null_environment_proc(object *arguments)
+static object *null_environment_proc(object *arguments)
 {
     require_zero(arguments, "null-environment");
     return make_null_environment();
 }
 
 
-object *environment_proc(object *arguments)
+static object *environment_proc(object *arguments)
 {
     require_zero(arguments, "environment");
     object *env = make_null_environment();
@@ -567,6 +574,7 @@ void init_primitives(object *env)
     defproc("string->symbol", string_to_symbol_proc, env);
     defproc("load", load_proc, env);
     defproc("apply", apply_proc, env);
+    defproc("eval", eval_proc, env);
     defproc("interaction-environment", interaction_environment_proc, env);
     defproc("null-environment", null_environment_proc, env);
     defproc("environment", environment_proc, env);

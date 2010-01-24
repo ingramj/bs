@@ -54,6 +54,8 @@ static inline object *and_tests(object *exp);
 static inline object *or_tests(object *exp);
 static inline object *apply_operator(object *arguments);
 static inline object *apply_operands(object *arguments);
+static inline object *eval_expression(object *arguments);
+static inline object *eval_environment(object *arguments);
 static inline object *application_operator(object *exp);
 static inline object *application_operands(object *exp);
 
@@ -77,6 +79,7 @@ static object *eval_definition(object *exp, object *env);
 static object *eval_parameters(object *parameters, object *env);
 
 extern object *apply_proc(object *arguments);   // from primitive.c
+extern object *eval_proc(object *arguments);    // from primitive.c
 
 /**** Identification ****/
 static inline int is_self_evaluating(object *exp)
@@ -341,6 +344,18 @@ static inline object *apply_operands(object *arguments)
 }
 
 
+static inline object *eval_expression(object *arguments)
+{
+    return car(arguments);
+}
+
+
+static inline object *eval_environment(object *arguments)
+{
+    return car(cdr(arguments));
+}
+
+
 static inline object *application_operator(object *exp)
 {
     return car(exp);
@@ -546,6 +561,14 @@ tailcall:
     } else if (is_application(exp)) {
         object *procedure = bs_eval(application_operator(exp), env);
         object *parameters = eval_parameters(application_operands(exp), env);
+
+        // handle eval specially for tailcall requirement.
+        if (is_primitive_proc(procedure) &&
+                procedure->value.primitive_proc == eval_proc) {
+            exp = eval_expression(parameters);
+            env = eval_environment(parameters);
+            goto tailcall;
+        }
 
         // handle apply specially for tailcall requirement.
         if (is_primitive_proc(procedure) &&
