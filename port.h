@@ -7,6 +7,8 @@
 #ifndef PORT_H
 #define PORT_H
 
+#include <stdarg.h>
+
 #include "object.h"
 
 void init_standard_ports(void);
@@ -34,7 +36,9 @@ int read_char();
 long read_line(char **bufptr);
 
 void write_to_output_port(char const * const fmt, ...);
+void vwrite_to_output_port(char const * const fmt, va_list args);
 void write_to_error_port(char const * const fmt, ...);
+void vwrite_to_error_port(char const * const fmt, va_list args);
 
 #endif
 

@@ -50,7 +50,7 @@ void print_error(error_level level, char const * const file, int line,
 
     va_list arg_list;
     va_start(arg_list, fmt);
-    write_to_error_port(fmt, arg_list);
+    vwrite_to_error_port(fmt, arg_list);
     va_end(arg_list);
 
     if (fmt[0] != '\0' && fmt[strlen(fmt) - 1] == ':') {

@@ -235,8 +235,18 @@ void write_to_output_port(char const * const fmt, ...)
 
     va_list arg_list;
     va_start(arg_list, fmt);
-    vfprintf(current_output_port->value.port.file, fmt, arg_list);
+    vwrite_to_output_port(fmt, arg_list);
     va_end(arg_list);
+}
+
+
+void vwrite_to_output_port(char const * const fmt, va_list args)
+{
+    if (port_is_closed(current_output_port)) {
+        error("port is closed");
+    }
+
+    vfprintf(current_output_port->value.port.file, fmt, args);
 }
 
 
@@ -248,7 +258,17 @@ void write_to_error_port(char const * const fmt, ...)
 
     va_list arg_list;
     va_start(arg_list, fmt);
-    vfprintf(current_error_port->value.port.file, fmt, arg_list);
+    vwrite_to_error_port(fmt, arg_list);
     va_end(arg_list);
+}
+
+
+void vwrite_to_error_port(char const * const fmt, va_list args)
+{
+    if (port_is_closed(current_error_port)) {
+        error("port is closed");
+    }
+
+    vfprintf(current_error_port->value.port.file, fmt, args);
 }
 
