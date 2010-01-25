@@ -32,15 +32,20 @@ Special Forms:
     and
     or
 Procedures:
+    eq?
     null?
     boolean?
     symbol?
     integer?
+    number?
     char?
     string?
     pair?
     list?
     procedure?
+    input-port?
+    output-port?
+    eof-object?
     +
     -
     *
@@ -62,20 +67,27 @@ Procedures:
     string->number
     symbol->string
     string->symbol
-    input-port?
-    output-port?
     current-input-port
     current-output-port
     open-input-file
     open-output-file
     close-input-port
     close-output-port
+    read
+    read-char
     load
     apply
     eval
     interaction-environment
     null-environment
     environment
+    map
+    for-each
+    fold-right
+    fold-left
+    reverse
+    append
+    not
 
 
 Compilation
