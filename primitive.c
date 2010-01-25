@@ -587,16 +587,17 @@ static object *load_proc(object *arguments)
     object *prev_port = get_input_port();
     set_input_port(input_port);
 
+    object *result;
     object *obj = bs_read();
     while (!is_end_of_file(obj)) {
-        bs_eval(obj, get_global_environment());
+        result = bs_eval(obj, get_global_environment());
         obj = bs_read();
     }
 
     set_input_port(prev_port);
     close_port(input_port);
 
-    return lookup_symbol("ok");
+    return result;
 }
 
 

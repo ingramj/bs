@@ -1,10 +1,20 @@
 ;;; bs library procedures
 
+(define number? integer?)
+
 (define (map proc lst)
   (if (null? lst)
     '()
     (cons (proc (car lst))
           (map proc (cdr lst)))))
+
+
+(define (for-each proc lst)
+  (if (null? lst)
+    'ok
+    (begin
+      (proc (car lst))
+      (for-each proc (cdr lst)))))
 
 
 (define (fold-right proc init lst)
@@ -29,8 +39,17 @@
              '()
              lst))
 
+
+(define (append l1 l2)
+  (fold-right (lambda (i j)
+                (cons i j))
+              l2
+              l1))
+
+
 (define (not x)
-  (if (eq? x #f)
-    #t
-    #f))
+  (if x #f #t))
+
+
+'stdlib-loaded
 

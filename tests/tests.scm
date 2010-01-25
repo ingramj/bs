@@ -1,4 +1,4 @@
-(load "../init.scm")                    ; ok
+(load "../stdlib.scm")                  ; stdlib-loaded
 0                                       ; 0
 451                                     ; 451
 -219                                    ; -219
@@ -277,4 +277,7 @@ environment                             ; #<procedure>
 (define env (environment))              ; ok
 (eval '(define z 25) env)               ; ok
 (eval 'z env)                           ; 25
+(append '(0 1 2 3) '(4 5 6 7))          ; (0 1 2 3 4 5 6 7)
+(append '() '(1 2 3))                   ; (1 2 3)
+(append '(2 4 6) '())                   ; (2 4 6)
 
