@@ -51,5 +51,8 @@
   (if x #f #t))
 
 
+(define (newline)
+  (display #\newline))
+
 'stdlib-loaded
 

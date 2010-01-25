@@ -20,6 +20,7 @@ Data types:
     characters
     strings
     pairs and lists
+    ports
 Special Forms:
     quote and '
     define
@@ -31,13 +32,12 @@ Special Forms:
     begin
     and
     or
-Procedures:
+Primitives:
     eq?
     null?
     boolean?
     symbol?
     integer?
-    number?
     char?
     string?
     pair?
@@ -75,12 +75,18 @@ Procedures:
     close-output-port
     read
     read-char
+    write
+    display
+    stdin-port
+    stdout-port
     load
     apply
     eval
     interaction-environment
     null-environment
     environment
+In stdlib.scm:
+    number?
     map
     for-each
     fold-right
@@ -88,6 +94,7 @@ Procedures:
     reverse
     append
     not
+    newline
 
 
 Compilation

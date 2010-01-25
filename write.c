@@ -50,6 +50,8 @@ void bs_write(object *exp)
         write_output("#<input-port>");
     } else if (is_output_port(exp)) {
         write_output("#<output-port>");
+    } else if (is_end_of_file(exp)) {
+        write_output("#<eof>");
     } else {
         warn("unknown expression type");
     }
@@ -89,6 +91,18 @@ static void write_pair(object *exp)
     } else {
         write_output(" . ");
         bs_write(cdr_obj);
+    }
+}
+
+
+void display(object *exp)
+{
+    if (is_string(exp)) {
+        write_output("%s", exp->value.string);
+    } else if (is_character(exp)) {
+        write_output("%c", exp->value.character);
+    } else {
+        bs_write(exp);
     }
 }
 

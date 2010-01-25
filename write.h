@@ -10,6 +10,7 @@
 #include "object.h"
 
 void bs_write(object *exp);
+void display(object *exp);
 
 #endif
 

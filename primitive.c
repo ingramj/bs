@@ -19,6 +19,7 @@
 #include "primitive.h"
 #include "read.h"
 #include "table.h"
+#include "write.h"
 
 #define defproc(name, proc, env) \
     define_variable(make_symbol(name), \
@@ -43,6 +44,12 @@
         error(name " requires a single argument"); \
     }
 
+
+#define require_one_or_two(args, name) \
+    if (is_empty_list(args) || \
+            (!is_empty_list(cdr(args)) && !is_empty_list(cdr(cdr(args))))) { \
+        error(name " takes either one or two arguments"); \
+    }
 
 #define require_exactly_two(args, name) \
     if (is_empty_list(args) || is_empty_list(cdr(args)) || \
@@ -84,6 +91,18 @@
 #define require_pair(arg, name) \
     if (!is_pair(arg)) { \
         error(name " called with non-pair argument"); \
+    }
+
+
+#define require_input_port(arg, name) \
+    if (!is_input_port(arg)) { \
+        error(name " called with non-input-port argument"); \
+    }
+
+
+#define require_output_port(arg, name) \
+    if (!is_output_port(arg)) { \
+        error(name " called with non-output-port argument"); \
     }
 
 
@@ -540,9 +559,7 @@ static object *open_output_file_proc(object *arguments)
 static object *close_input_port_proc(object *arguments)
 {
     require_exactly_one(arguments, "close-input-file");
-    if (!is_input_port(car(arguments))) {
-        error("close-input-port requires an input-port as an argument");
-    }
+    require_input_port(car(arguments), "close-input-file");
 
     close_port(car(arguments));
     return lookup_symbol("ok");
@@ -552,9 +569,7 @@ static object *close_input_port_proc(object *arguments)
 static object *close_output_port_proc(object *arguments)
 {
     require_exactly_one(arguments, "close-output-port");
-    if (!is_output_port(car(arguments))) {
-        error("close-output-port requires an output-port as an argument");
-    }
+    require_output_port(car(arguments), "close-output-port");
 
     close_port(car(arguments));
     return lookup_symbol("ok");
@@ -568,6 +583,7 @@ static object *read_proc(object *arguments)
     if (is_empty_list(arguments)) {
         return bs_read();
     } else {
+        require_input_port(car(arguments), "read");
         object *prev_port = get_input_port();
         set_input_port(car(arguments));
         object *result = bs_read();
@@ -585,6 +601,7 @@ static object *read_char_proc(object *arguments)
     if (is_empty_list(arguments)) {
         c = read_char();
     } else {
+        require_input_port(car(arguments), "read-char");
         object *prev_port = get_input_port();
         set_input_port(car(arguments));
         c = read_char();
@@ -595,6 +612,56 @@ static object *read_char_proc(object *arguments)
     } else {
         return make_character((char)c);
     }
+}
+
+
+static object *write_proc(object *arguments)
+{
+    require_one_or_two(arguments, "write");
+
+    if (is_empty_list(cdr(arguments))) {
+        bs_write(car(arguments));
+    } else {
+        require_output_port(car(cdr(arguments)), "write");
+        object *prev_port = get_output_port();
+        set_output_port(car(cdr(arguments)));
+        bs_write(car(arguments));
+        set_output_port(prev_port);
+    }
+
+    return lookup_symbol("ok");
+}
+
+
+static object *display_proc(object *arguments)
+{
+    require_one_or_two(arguments, "display");
+
+    if (is_empty_list(cdr(arguments))) {
+        display(car(arguments));
+    } else {
+        require_output_port(car(cdr(arguments)), "display");
+        object *prev_port = get_output_port();
+        set_output_port(car(cdr(arguments)));
+        display(car(arguments));
+        set_output_port(prev_port);
+    }
+
+    return lookup_symbol("ok");
+}
+
+
+static object *stdin_port_proc(object *arguments)
+{
+    require_zero(arguments, "stdin-port");
+    return get_standard_input_port();
+}
+
+
+static object *stdout_port_proc(object *arguments)
+{
+    require_zero(arguments, "stdout-port");
+    return get_standard_output_port();
 }
 
 
@@ -704,6 +771,10 @@ void init_primitives(object *env)
     defproc("close-output-port", close_output_port_proc, env);
     defproc("read", read_proc, env);
     defproc("read-char", read_char_proc, env);
+    defproc("write", write_proc, env);
+    defproc("display", display_proc, env);
+    defproc("stdin-port", stdin_port_proc, env);
+    defproc("stdout-port", stdout_port_proc, env);
     defproc("load", load_proc, env);
     defproc("apply", apply_proc, env);
     defproc("eval", eval_proc, env);
