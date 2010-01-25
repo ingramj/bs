@@ -1,7 +1,5 @@
 ;; REPL demo
-
-(define repl-env (environment))         ; create new env for repl
-(eval (eq? (load "stdlib.scm") 'stdlib-loaded) repl-env)
+(load "stdlib.scm")
 
 
 (define (rep-loop)
@@ -11,7 +9,7 @@
            (display "goodbye!\n")
            'ok)
           (else
-            (write (eval expr repl-env))
+            (write (eval expr (interaction-environment)))
             (newline)
             (rep-loop)))))
 
