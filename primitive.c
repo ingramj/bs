@@ -32,8 +32,14 @@
     }
 
 
+#define require_at_most_one(args, name) \
+    if (!is_empty_list(args) && !is_empty_list(cdr(args))) { \
+        error(name " takes at most one argument"); \
+    }
+
+
 #define require_exactly_one(args, name) \
-    if (is_empty_list(args) || !is_empty_list(cdr(arguments))) { \
+    if (is_empty_list(args) || !is_empty_list(cdr(args))) { \
         error(name " requires a single argument"); \
     }
 
@@ -167,6 +173,27 @@ static object *is_procedure_proc(object *arguments)
 {
     require_exactly_one(arguments, "procedure?");
     return get_boolean(is_procedure(car(arguments)));
+}
+
+
+static object *is_input_port_proc(object *arguments)
+{
+    require_exactly_one(arguments, "input-port?");
+    return get_boolean(is_input_port(car(arguments)));
+}
+
+
+static object *is_output_port_proc(object *arguments)
+{
+    require_exactly_one(arguments, "output-port?");
+    return get_boolean(is_output_port(car(arguments)));
+}
+
+
+static object *is_eof_object_proc(object *arguments)
+{
+    require_exactly_one(arguments, "eof-object?");
+    return get_boolean(is_end_of_file(car(arguments)));
 }
 
 
@@ -478,20 +505,6 @@ static object *string_to_symbol_proc(object *arguments)
 
 
 /**** Input/Output ****/
-static object *is_input_port_proc(object *arguments)
-{
-    require_exactly_one(arguments, "input-port?");
-    return get_boolean(is_input_port(car(arguments)));
-}
-
-
-static object *is_output_port_proc(object *arguments)
-{
-    require_exactly_one(arguments, "output-port?");
-    return get_boolean(is_output_port(car(arguments)));
-}
-
-
 static object *current_input_port_proc(object *arguments)
 {
     require_zero(arguments, "current-input-port");
@@ -545,6 +558,22 @@ static object *close_output_port_proc(object *arguments)
 
     close_port(car(arguments));
     return lookup_symbol("ok");
+}
+
+
+static object *read_proc(object *arguments)
+{
+    require_at_most_one(arguments, "read");
+
+    if (is_empty_list(arguments)) {
+        return bs_read();
+    } else {
+        object *prev_port = get_input_port();
+        set_input_port(car(arguments));
+        object *result = bs_read();
+        set_input_port(prev_port);
+        return result;
+    }
 }
 
 
@@ -621,6 +650,9 @@ void init_primitives(object *env)
     defproc("pair?", is_pair_proc, env);
     defproc("list?", is_list_proc, env);
     defproc("procedure?", is_procedure_proc, env);
+    defproc("input-port?", is_input_port_proc, env);
+    defproc("output-port?", is_output_port_proc, env);
+    defproc("eof-object?", is_eof_object_proc, env);
     defproc("+", add_proc, env);
     defproc("-", sub_proc, env);
     defproc("*", mult_proc, env);
@@ -642,14 +674,13 @@ void init_primitives(object *env)
     defproc("string->number", string_to_number_proc, env);
     defproc("symbol->string", symbol_to_string_proc, env);
     defproc("string->symbol", string_to_symbol_proc, env);
-    defproc("input-port?", is_input_port_proc, env);
-    defproc("output-port?", is_output_port_proc, env);
     defproc("current-input-port", current_input_port_proc, env);
     defproc("current-output-port", current_output_port_proc, env);
     defproc("open-input-file", open_input_file_proc, env);
     defproc("open-output-file", open_output_file_proc, env);
     defproc("close-input-port", close_input_port_proc, env);
     defproc("close-output-port", close_output_port_proc, env);
+    defproc("read", read_proc, env);
     defproc("load", load_proc, env);
     defproc("apply", apply_proc, env);
     defproc("eval", eval_proc, env);
