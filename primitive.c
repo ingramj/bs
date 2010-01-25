@@ -577,6 +577,27 @@ static object *read_proc(object *arguments)
 }
 
 
+static object *read_char_proc(object *arguments)
+{
+    require_at_most_one(arguments, "read-char");
+
+    int c;
+    if (is_empty_list(arguments)) {
+        c = read_char();
+    } else {
+        object *prev_port = get_input_port();
+        set_input_port(car(arguments));
+        c = read_char();
+        set_input_port(prev_port);
+    }
+    if (c == EOF) {
+        return get_end_of_file();
+    } else {
+        return make_character((char)c);
+    }
+}
+
+
 static object *load_proc(object *arguments)
 {
     require_exactly_one(arguments, "load");
@@ -682,6 +703,7 @@ void init_primitives(object *env)
     defproc("close-input-port", close_input_port_proc, env);
     defproc("close-output-port", close_output_port_proc, env);
     defproc("read", read_proc, env);
+    defproc("read-char", read_char_proc, env);
     defproc("load", load_proc, env);
     defproc("apply", apply_proc, env);
     defproc("eval", eval_proc, env);
