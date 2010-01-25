@@ -22,34 +22,34 @@ void bs_write(object *exp)
     }
 
     if (is_number(exp)) {
-        write_to_output_port("%ld", exp->value.number);
+        write_output("%ld", exp->value.number);
     } else if (is_boolean(exp)) {
-        write_to_output_port("#%c", is_false(exp) ? 'f' : 't');
+        write_output("#%c", is_false(exp) ? 'f' : 't');
     } else if (is_character(exp)) {
-        write_to_output_port("#\\");
+        write_output("#\\");
         if (exp->value.character == '\n') {
-            write_to_output_port("newline");
+            write_output("newline");
         } else if (exp->value.character == ' ') {
-            write_to_output_port("space");
+            write_output("space");
         } else {
-            write_to_output_port("%c", exp->value.character);
+            write_output("%c", exp->value.character);
         }
     } else if (is_string(exp)) {
         write_string(exp);
     } else if (is_symbol(exp)) {
-        write_to_output_port("%s", exp->value.symbol);
+        write_output("%s", exp->value.symbol);
     } else if (is_empty_list(exp)) {
-        write_to_output_port("()");
+        write_output("()");
     } else if (is_pair(exp)) {
-        write_to_output_port("(");
+        write_output("(");
         write_pair(exp);
-        write_to_output_port(")");
+        write_output(")");
     } else if (is_procedure(exp)) {
-        write_to_output_port("#<procedure>");
+        write_output("#<procedure>");
     } else if (is_input_port(exp)) {
-        write_to_output_port("#<input-port>");
+        write_output("#<input-port>");
     } else if (is_output_port(exp)) {
-        write_to_output_port("#<output-port>");
+        write_output("#<output-port>");
     } else {
         warn("unknown expression type");
     }
@@ -58,21 +58,21 @@ void bs_write(object *exp)
 
 static void write_string(object *exp)
 {
-    write_to_output_port("\"");
+    write_output("\"");
     char const *pos = exp->value.string;
     while (*pos != '\0') {
         if (*pos == '\n') {
-            write_to_output_port("\\n");
+            write_output("\\n");
         } else if (*pos == '"') {
-            write_to_output_port("\\\"");
+            write_output("\\\"");
         } else if (*pos == '\\') {
-            write_to_output_port("\\\\");
+            write_output("\\\\");
         } else {
-            write_to_output_port("%c", *pos);
+            write_output("%c", *pos);
         }
         pos++;
     }
-    write_to_output_port("\"");
+    write_output("\"");
 }
 
 
@@ -82,12 +82,12 @@ static void write_pair(object *exp)
 
     object *cdr_obj = cdr(exp);
     if (is_pair(cdr_obj)) {
-        write_to_output_port(" ");
+        write_output(" ");
         write_pair(cdr_obj);
     } else if (is_empty_list(cdr_obj)) {
         return;
     } else {
-        write_to_output_port(" . ");
+        write_output(" . ");
         bs_write(cdr_obj);
     }
 }

@@ -19,9 +19,9 @@ static object standard_input_port;
 static object standard_output_port;
 static object standard_error_port;
 
-static object *current_input_port = &standard_input_port;
-static object *current_output_port = &standard_output_port;
-static object *current_error_port = &standard_error_port;
+static object *input_port = &standard_input_port;
+static object *output_port = &standard_output_port;
+static object *error_port = &standard_error_port;
 
 
 void init_standard_ports(void)
@@ -61,48 +61,48 @@ object *get_standard_error_port(void)
 }
 
 
-object *get_current_input_port(void)
+object *get_input_port(void)
 {
-    return current_input_port;
+    return input_port;
 }
 
 
-object *get_current_output_port(void)
+object *get_output_port(void)
 {
-    return current_output_port;
+    return output_port;
 }
 
 
-object *get_current_error_port(void)
+object *get_error_port(void)
 {
-    return current_error_port;
+    return error_port;
 }
 
 
-void set_current_input_port(object *p)
+void set_input_port(object *p)
 {
     if (is_input_port(p)) {
-        current_input_port = p;
+        input_port = p;
     } else {
         error("not an input port");
     }
 }
 
 
-void set_current_output_port(object *p)
+void set_output_port(object *p)
 {
     if (is_output_port(p)) {
-        current_output_port = p;
+        output_port = p;
     } else {
         error("not an output port");
     }
 }
 
 
-void set_current_error_port(object *p)
+void set_error_port(object *p)
 {
     if (is_output_port(p)) {
-        current_error_port = p;
+        error_port = p;
     } else {
         error("not an output port");
     }
@@ -156,16 +156,16 @@ void close_port(object *p)
 
 int read_char(void)
 {
-    if (port_is_closed(current_input_port)) {
+    if (port_is_closed(input_port)) {
         error("port is closed");
     }
 
-    int c = fgetc(current_input_port->value.port.file);
+    int c = fgetc(input_port->value.port.file);
     if (c == EOF) {
-        if (ferror(current_input_port->value.port.file)) {
+        if (ferror(input_port->value.port.file)) {
             error("error reading from port:");
         } else {
-            current_input_port->value.port.state = -1;
+            input_port->value.port.state = -1;
         }
     }
 
@@ -181,7 +181,7 @@ int read_char(void)
  */
 long read_line(char **bufptr)
 {
-    if (port_is_closed(current_input_port)) {
+    if (port_is_closed(input_port)) {
         error("port is closed");
     }
 
@@ -227,48 +227,48 @@ long read_line(char **bufptr)
 }
 
 
-void write_to_output_port(char const * const fmt, ...)
+void write_output(char const * const fmt, ...)
 {
-    if (port_is_closed(current_output_port)) {
+    if (port_is_closed(output_port)) {
         error("port is closed");
     }
 
     va_list arg_list;
     va_start(arg_list, fmt);
-    vwrite_to_output_port(fmt, arg_list);
+    va_write_output(fmt, arg_list);
     va_end(arg_list);
 }
 
 
-void vwrite_to_output_port(char const * const fmt, va_list args)
+void va_write_output(char const * const fmt, va_list args)
 {
-    if (port_is_closed(current_output_port)) {
+    if (port_is_closed(output_port)) {
         error("port is closed");
     }
 
-    vfprintf(current_output_port->value.port.file, fmt, args);
+    vfprintf(output_port->value.port.file, fmt, args);
 }
 
 
-void write_to_error_port(char const * const fmt, ...)
+void write_error(char const * const fmt, ...)
 {
-    if (port_is_closed(current_error_port)) {
+    if (port_is_closed(error_port)) {
         error("port is closed");
     }
 
     va_list arg_list;
     va_start(arg_list, fmt);
-    vwrite_to_error_port(fmt, arg_list);
+    va_write_error(fmt, arg_list);
     va_end(arg_list);
 }
 
 
-void vwrite_to_error_port(char const * const fmt, va_list args)
+void va_write_error(char const * const fmt, va_list args)
 {
-    if (port_is_closed(current_error_port)) {
+    if (port_is_closed(error_port)) {
         error("port is closed");
     }
 
-    vfprintf(current_error_port->value.port.file, fmt, args);
+    vfprintf(error_port->value.port.file, fmt, args);
 }
 

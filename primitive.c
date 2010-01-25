@@ -495,14 +495,14 @@ static object *is_output_port_proc(object *arguments)
 static object *current_input_port_proc(object *arguments)
 {
     require_zero(arguments, "current-input-port");
-    return get_current_input_port();
+    return get_input_port();
 }
 
 
 static object *current_output_port_proc(object *arguments)
 {
     require_zero(arguments, "current-output-port");
-    return get_current_output_port();
+    return get_output_port();
 }
 
 
@@ -555,16 +555,16 @@ static object *load_proc(object *arguments)
 
     char const *src_file = car(arguments)->value.string;
     object *input_port = make_input_port(src_file);
-
-    object *prev_port = get_current_input_port();
-    set_current_input_port(input_port);
+    object *prev_port = get_input_port();
+    set_input_port(input_port);
 
     object *obj = bs_read();
     while (!is_end_of_file(obj)) {
         bs_eval(obj, get_global_environment());
         obj = bs_read();
     }
-    set_current_input_port(prev_port);
+
+    set_input_port(prev_port);
     close_port(input_port);
 
     return lookup_symbol("ok");

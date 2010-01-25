@@ -41,22 +41,18 @@ void print_error(error_level level, char const * const file, int line,
     if (level > current_level)
         return;
 
-    (void)fflush(get_current_output_port()->value.port.file);
-    write_to_error_port("%s\t%s:%d:%s: ",
-            level_names[level],
-            file,
-            line,
-            func);
+    (void)fflush(get_output_port()->value.port.file);
+    write_error("%s\t%s:%d:%s: ", level_names[level], file, line, func);
 
     va_list arg_list;
     va_start(arg_list, fmt);
-    vwrite_to_error_port(fmt, arg_list);
+    va_write_error(fmt, arg_list);
     va_end(arg_list);
 
     if (fmt[0] != '\0' && fmt[strlen(fmt) - 1] == ':') {
-        write_to_error_port(" %s", strerror(errno));
+        write_error(" %s", strerror(errno));
     }
 
-    write_to_error_port("\n");
+    write_error("\n");
 }
 

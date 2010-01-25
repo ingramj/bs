@@ -9,10 +9,12 @@
 #include "error.h"
 #include "lexer.h"
 #include "object.h"
+#include "port.h"
 #include "read.h"
 #include "table.h"
 
 static object *read_pair(void);
+
 
 object *bs_read(void)
 {

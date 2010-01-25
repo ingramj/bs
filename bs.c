@@ -38,30 +38,30 @@ int main(int argc, char *argv[])
     if (argc == 2) {
         input_port = make_input_port(argv[1]);
     } else if (argc > 2) {
-        write_to_output_port("usage: bs [infile]\n");
+        write_output("usage: bs [infile]\n");
         exit(1);
     } else {
         input_port = get_standard_input_port();
     }
 
-    set_current_input_port(input_port);
+    set_input_port(input_port);
 
     if(input_port == get_standard_input_port()) {
-        write_to_output_port("Welcome to the bs REPL. Press ctrl-d to quit.");
-        write_to_output_port("\nbs> ");
+        write_output("Welcome to the bs REPL. Press ctrl-d to quit.");
+        write_output("\nbs> ");
     }
 
     object *obj = bs_read();
     while (!is_end_of_file(obj)) {
         bs_write(bs_eval(obj, get_global_environment()));
-        write_to_output_port("\n");
+        write_output("\n");
         if (input_port == get_standard_input_port()) {
-            write_to_output_port("bs> ");
+            write_output("bs> ");
         }
         obj = bs_read();
     }
 
-    write_to_output_port("\n");
+    write_output("\n");
 
     return 0;
 }
