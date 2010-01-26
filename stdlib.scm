@@ -54,5 +54,20 @@
 (define (newline)
   (display #\newline))
 
+
+(define (call-with-input-file file proc)
+  (let ((port (open-input-file file)))
+    (let ((result (proc port)))
+      (close-input-port port)
+      result)))
+
+
+(define (call-with-output-file file proc)
+  (let ((port (open-output-file file)))
+    (let ((result (proc port)))
+      (close-output-port port)
+      result)))
+
+
 'stdlib-loaded
 

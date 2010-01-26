@@ -76,6 +76,12 @@
     }
 
 
+#define require_character(arg, name) \
+    if (!is_character(arg)) { \
+        error(name " called with non-character argument"); \
+    }
+
+
 #define require_string(arg, name) \
     if (!is_string(arg)) { \
         error(name " called with non-string argument"); \
@@ -422,9 +428,8 @@ static object *list_proc(object *arguments)
 static object *char_to_integer_proc(object *arguments)
 {
     require_exactly_one(arguments, "char->integer");
-    if (!is_character(car(arguments))) {
-        error("char->integer requires a character as an argument");
-    }
+    require_character(car(arguments), "char->integer");
+
     char value = car(arguments)->value.character;
     return make_number(value);
 }
@@ -633,6 +638,25 @@ static object *write_proc(object *arguments)
 }
 
 
+static object *write_char_proc(object *arguments)
+{
+    require_one_or_two(arguments, "write-char");
+    require_character(car(arguments), "write-char");
+
+    if (is_empty_list(cdr(arguments))) {
+        write_output("%c", car(arguments)->value.character);
+    } else {
+        require_output_port(car(cdr(arguments)), "write-char");
+        object *prev_port = get_output_port();
+        set_output_port(car(cdr(arguments)));
+        write_output("%c", car(arguments)->value.character);
+        set_output_port(prev_port);
+    }
+
+    return lookup_symbol("ok");
+}
+
+
 static object *display_proc(object *arguments)
 {
     require_one_or_two(arguments, "display");
@@ -779,6 +803,7 @@ void init_primitives(object *env)
     defproc("read", read_proc, env);
     defproc("read-char", read_char_proc, env);
     defproc("write", write_proc, env);
+    defproc("write-char", write_char_proc, env);
     defproc("display", display_proc, env);
     defproc("stdin-port", stdin_port_proc, env);
     defproc("stdout-port", stdout_port_proc, env);
