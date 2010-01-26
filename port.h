@@ -33,6 +33,7 @@ inline int port_is_closed(object *p) { return p->value.port.state == 0; }
 inline int port_is_eof(object *p) { return p->value.port.state == -1; }
 
 int read_char();
+int peek_char();
 long read_line(char **bufptr);
 
 void write_output(char const * const fmt, ...);

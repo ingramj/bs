@@ -612,6 +612,30 @@ static object *read_char_proc(object *arguments)
         c = read_char();
         set_input_port(prev_port);
     }
+
+    if (c == EOF) {
+        return get_end_of_file();
+    } else {
+        return make_character((char)c);
+    }
+}
+
+
+static object *peek_char_proc(object *arguments)
+{
+    require_at_most_one(arguments, "peek-char");
+
+    int c;
+    if (is_empty_list(arguments)) {
+        c = peek_char();
+    } else {
+        require_input_port(car(arguments), "peek-char");
+        object *prev_port = get_input_port();
+        set_input_port(car(arguments));
+        c = peek_char();
+        set_input_port(prev_port);
+    }
+
     if (c == EOF) {
         return get_end_of_file();
     } else {
@@ -802,6 +826,7 @@ void init_primitives(object *env)
     defproc("close-output-port", close_output_port_proc, env);
     defproc("read", read_proc, env);
     defproc("read-char", read_char_proc, env);
+    defproc("peek-char", peek_char_proc, env);
     defproc("write", write_proc, env);
     defproc("write-char", write_char_proc, env);
     defproc("display", display_proc, env);

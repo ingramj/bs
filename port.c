@@ -173,6 +173,13 @@ int read_char(void)
 }
 
 
+int peek_char(void)
+{
+    int c = read_char();
+    return ungetc(c, input_port->value.port.file);
+}
+
+
 /* Reads in a line of input, ended by a newline, null, or end of file.
  *
  * Takes the address of a pointer to const char, which is set to point

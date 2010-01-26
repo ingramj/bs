@@ -280,4 +280,5 @@ environment                             ; #<procedure>
 (append '(0 1 2 3) '(4 5 6 7))          ; (0 1 2 3 4 5 6 7)
 (append '() '(1 2 3))                   ; (1 2 3)
 (append '(2 4 6) '())                   ; (2 4 6)
+(call-with-input-file "./tests.scm" peek-char)  ; #\(
 
