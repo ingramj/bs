@@ -91,6 +91,7 @@ Primitives:
     stdin-port
     stdout-port
     load
+    error
     apply
     eval
     interaction-environment

@@ -744,6 +744,23 @@ static object *load_proc(object *arguments)
 }
 
 
+static object *error_proc(object *arguments)
+{
+    write_error("ERROR");
+    if (!is_empty_list(arguments))
+    {
+        write_error(": ");
+        set_output_port(get_error_port());
+        while (!is_empty_list(arguments)) {
+            display(car(arguments));
+            arguments = cdr(arguments);
+        }
+    }
+    write_error("\n");
+    exit(1);
+}
+
+
 /**** Eval/Apply ****/
 object *apply_proc(object *arguments)
 {
@@ -833,6 +850,7 @@ void init_primitives(object *env)
     defproc("stdin-port", stdin_port_proc, env);
     defproc("stdout-port", stdout_port_proc, env);
     defproc("load", load_proc, env);
+    defproc("error", error_proc, env);
     defproc("apply", apply_proc, env);
     defproc("eval", eval_proc, env);
     defproc("interaction-environment", interaction_environment_proc, env);
