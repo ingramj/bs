@@ -5,6 +5,7 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 #include "gc.h"
 
 #include "environment.h"
@@ -17,6 +18,57 @@
 #include "table.h"
 #include "read.h"
 #include "write.h"
+
+
+void print_usage(void)
+{
+    write_error("usage: bs file [-p]\n");
+    write_error("file : a scheme source file, or '-' to read from stdin.\n");
+    write_error("-p   : print the result of each expression in file.\n");
+}
+
+
+struct config {
+    int print_results;
+    object *input_port;
+};
+
+
+struct config *parse_options(int argc, char *argv[])
+{
+    if (argc < 2 || argc > 3) {
+        print_usage();
+        exit(1);
+    }
+
+    struct config *conf = GC_MALLOC(sizeof(struct config));
+
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "-p") == 0) {
+            conf->print_results = 1;
+        } else if (argv[i][0] == '-' && argv[i][1] != '\0') {
+            print_usage();
+            exit(1);
+        } else if (conf->input_port == NULL) {
+            if (strcmp(argv[i], "-") == 0) {
+                conf->input_port = get_standard_input_port();
+            } else {
+                conf->input_port = make_input_port(argv[i]);
+            }
+        } else {
+            print_usage();
+            exit(1);
+        }
+    }
+
+
+    if (conf->input_port == NULL) {
+        print_usage();
+        exit(1);
+    }
+
+    return conf;
+}
 
 
 void init_system(void)
@@ -34,35 +86,18 @@ int main(int argc, char *argv[])
 {
     init_system();
 
-    object *input_port;
-    if (argc == 2) {
-        input_port = make_input_port(argv[1]);
-    } else if (argc > 2) {
-        write_output("usage: bs [infile]\n");
-        exit(1);
-    } else {
-        input_port = get_standard_input_port();
-    }
-
-    set_input_port(input_port);
-
-    if(input_port == get_standard_input_port()) {
-        write_output("Welcome to the bs REPL. Press ctrl-d to quit.");
-        write_output("\nbs> ");
-    }
+    struct config *conf = parse_options(argc, argv);
+    set_input_port(conf->input_port);
 
     object *obj = bs_read();
     while (!is_end_of_file(obj)) {
-        bs_write(bs_eval(obj, get_global_environment()));
-        write_output("\n");
-        if (input_port == get_standard_input_port()) {
-            write_output("bs> ");
+        object *result = bs_eval(obj, get_global_environment());
+        if (conf->print_results) {
+            bs_write(result);
+            write_output("\n");
         }
         obj = bs_read();
     }
-
-    write_output("\n");
-
     return 0;
 }
 

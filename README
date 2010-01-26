@@ -12,6 +12,16 @@ This project was inspired by Peter Michaux's "Scheme from Scratch" project.
 http://peter.michaux.ca/articles/scheme-from-scratch-introduction
 
 
+Usage
+=====
+./bs file [-p]
+Where "file" is either a Scheme source file, or a "-" to read from stdin.
+"-p" causes bs to print the result of every expression it evaluated.
+
+There is a read-eval-print loop in the file bsrepl.scm. To use it, just run
+"./bs bsrepl.scm"
+
+
 Features Implemented
 ====================
 Data types:

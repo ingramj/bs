@@ -22,7 +22,7 @@ popd > /dev/null
 echo Extracting expected results
 awk 'BEGIN { FS = "; " } { print $2 }' < tests.scm > expected
 echo Running tests
-../bs tests.scm > actual
+../bs -p tests.scm > actual
 echo Comparing results
 diff -s --suppress-common-lines --width=80 -U 0 expected actual
 rm expected actual
