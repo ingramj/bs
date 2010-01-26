@@ -11,13 +11,52 @@
 #include "environment.h"
 #include "error.h"
 #include "eval.h"
-#include "lexer.h"
 #include "object.h"
 #include "port.h"
 #include "primitive.h"
-#include "table.h"
 #include "read.h"
 #include "write.h"
+
+
+struct config {
+    int print_results;
+    object *input_port;
+};
+
+void init_system(void);
+void print_usage(void);
+struct config *parse_options(int argc, char *argv[]);
+
+
+int main(int argc, char *argv[])
+{
+    init_system();
+
+    struct config *conf = parse_options(argc, argv);
+    set_input_port(conf->input_port);
+
+    object *obj = bs_read();
+    while (!is_end_of_file(obj)) {
+        object *result = bs_eval(obj, get_global_environment());
+        if (conf->print_results) {
+            bs_write(result);
+            write_output("\n");
+        }
+        obj = bs_read();
+    }
+    return 0;
+}
+
+
+void init_system(void)
+{
+    GC_INIT();
+    set_error_level(WARNING);
+    init_special_forms();
+    init_global_environment();
+    init_primitives(get_global_environment());
+    init_standard_ports();
+}
 
 
 void print_usage(void)
@@ -28,12 +67,6 @@ void print_usage(void)
 }
 
 
-struct config {
-    int print_results;
-    object *input_port;
-};
-
-
 struct config *parse_options(int argc, char *argv[])
 {
     if (argc < 2 || argc > 3) {
@@ -42,6 +75,9 @@ struct config *parse_options(int argc, char *argv[])
     }
 
     struct config *conf = GC_MALLOC(sizeof(struct config));
+    if (conf == NULL) {
+        error("could not allocate config struct");
+    }
 
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-p") == 0) {
@@ -68,36 +104,5 @@ struct config *parse_options(int argc, char *argv[])
     }
 
     return conf;
-}
-
-
-void init_system(void)
-{
-    GC_INIT();
-    set_error_level(WARNING);
-    init_special_forms();
-    init_global_environment();
-    init_primitives(get_global_environment());
-    init_standard_ports();
-}
-
-
-int main(int argc, char *argv[])
-{
-    init_system();
-
-    struct config *conf = parse_options(argc, argv);
-    set_input_port(conf->input_port);
-
-    object *obj = bs_read();
-    while (!is_end_of_file(obj)) {
-        object *result = bs_eval(obj, get_global_environment());
-        if (conf->print_results) {
-            bs_write(result);
-            write_output("\n");
-        }
-        obj = bs_read();
-    }
-    return 0;
 }
 
