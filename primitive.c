@@ -667,7 +667,7 @@ static object *stdout_port_proc(object *arguments)
 
 static object *load_proc(object *arguments)
 {
-    require_exactly_one(arguments, "load");
+    require_one_or_two(arguments, "load");
     require_string(car(arguments), "load");
 
     char const *src_file = car(arguments)->value.string;
@@ -675,10 +675,17 @@ static object *load_proc(object *arguments)
     object *prev_port = get_input_port();
     set_input_port(input_port);
 
+    object *env;
+    if (!is_empty_list(cdr(arguments))) {
+        env = car(cdr(arguments));
+    } else {
+        env = get_global_environment();
+    }
+
     object *result;
     object *obj = bs_read();
     while (!is_end_of_file(obj)) {
-        result = bs_eval(obj, get_global_environment());
+        result = bs_eval(obj, env);
         obj = bs_read();
     }
 
