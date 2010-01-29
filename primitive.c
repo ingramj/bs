@@ -753,6 +753,7 @@ static object *error_proc(object *arguments)
         set_output_port(get_error_port());
         while (!is_empty_list(arguments)) {
             display(car(arguments));
+            write_error(" ");
             arguments = cdr(arguments);
         }
     }

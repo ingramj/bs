@@ -1,8 +1,7 @@
 bs - A Basic Scheme Implementation
 ==================================
-bs is an interpreter for a simple Scheme-like language that is in very early
-development. But even when it is finished, it will still lack the more advanced
-features of Scheme, such as macros and continuations.
+bs is an interpreter for a simple Scheme-like language. It lacks the more
+advanced features of Scheme, such as macros and call/cc.
 
 The goal of bs is to implement enough of Scheme to boostrap a Scheme compiler
 written in Scheme. A secondary goal is to learn about writing simple
@@ -109,6 +108,7 @@ In stdlib.scm:
     newline
     call-with-input-file
     call-with-output-file
+    caar, cddr, etc.
 
 
 Compilation
