@@ -585,16 +585,19 @@ static object *read_proc(object *arguments)
 {
     require_at_most_one(arguments, "read");
 
+    object *prev_port = get_input_port();
+    object *result;
+
     if (is_empty_list(arguments)) {
-        return bs_read();
+        set_input_port(get_standard_input_port());
+        result = bs_read();
     } else {
         require_input_port(car(arguments), "read");
-        object *prev_port = get_input_port();
         set_input_port(car(arguments));
-        object *result = bs_read();
+        result = bs_read();
+    }
         set_input_port(prev_port);
         return result;
-    }
 }
 
 
@@ -602,16 +605,18 @@ static object *read_char_proc(object *arguments)
 {
     require_at_most_one(arguments, "read-char");
 
+    object *prev_port = get_input_port();
     int c;
+
     if (is_empty_list(arguments)) {
+        set_input_port(get_standard_input_port());
         c = read_char();
     } else {
         require_input_port(car(arguments), "read-char");
-        object *prev_port = get_input_port();
         set_input_port(car(arguments));
         c = read_char();
-        set_input_port(prev_port);
     }
+    set_input_port(prev_port);
 
     if (c == EOF) {
         return get_end_of_file();
@@ -625,16 +630,18 @@ static object *peek_char_proc(object *arguments)
 {
     require_at_most_one(arguments, "peek-char");
 
+    object *prev_port = get_input_port();
     int c;
+
     if (is_empty_list(arguments)) {
+        set_input_port(get_standard_input_port());
         c = peek_char();
     } else {
         require_input_port(car(arguments), "peek-char");
-        object *prev_port = get_input_port();
         set_input_port(car(arguments));
         c = peek_char();
-        set_input_port(prev_port);
     }
+    set_input_port(prev_port);
 
     if (c == EOF) {
         return get_end_of_file();
