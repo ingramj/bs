@@ -424,6 +424,34 @@ static object *list_proc(object *arguments)
 }
 
 
+/**** String manipulation ****/
+static object *string_append_proc(object *arguments)
+{
+    require_at_least_one(arguments, "string-append");
+
+    long unsigned len = 0;
+    object *s = arguments;
+    while (!is_empty_list(s)) {
+        require_string(car(s), "string-append");
+        len += strlen(car(s)->value.string);
+        s = cdr(s);
+    }
+
+    char *buf = GC_MALLOC(len + 1);
+    char *pos = buf;
+    s = arguments;
+    while (!is_empty_list(s)) {
+        strcpy(pos, car(s)->value.string);
+        pos += strlen(pos);
+        s = cdr(s);
+    }
+
+    *pos = '\0';
+
+    return make_string(buf);
+}
+
+
 /**** Type conversion ****/
 static object *char_to_integer_proc(object *arguments)
 {
@@ -837,6 +865,7 @@ void init_primitives(object *env)
     defproc("set-cdr!", set_cdr_proc, env);
     defproc("length", length_proc, env);
     defproc("list", list_proc, env);
+    defproc("string-append", string_append_proc, env);
     defproc("char->integer", char_to_integer_proc, env);
     defproc("integer->char", integer_to_char_proc, env);
     defproc("number->string", number_to_string_proc, env);

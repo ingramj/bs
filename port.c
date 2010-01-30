@@ -260,7 +260,8 @@ void va_write_output(char const * const fmt, va_list args)
 void write_error(char const * const fmt, ...)
 {
     if (port_is_closed(error_port)) {
-        error("port is closed");
+        fprintf(stderr, "error port is closed");
+        exit(2);
     }
 
     va_list arg_list;
@@ -273,7 +274,8 @@ void write_error(char const * const fmt, ...)
 void va_write_error(char const * const fmt, va_list args)
 {
     if (port_is_closed(error_port)) {
-        error("port is closed");
+        fprintf(stderr, "error port is closed\n");
+        exit(2);
     }
 
     vfprintf(error_port->value.port.file, fmt, args);

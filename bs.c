@@ -51,11 +51,11 @@ int main(int argc, char *argv[])
 void init_system(void)
 {
     GC_INIT();
+    init_standard_ports();
     set_error_level(WARNING);
     init_special_forms();
     init_global_environment();
     init_primitives(get_global_environment());
-    init_standard_ports();
 }
 
 

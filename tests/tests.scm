@@ -211,6 +211,11 @@ list                                    ; #<procedure>
 (list 'a 'b 'c)                         ; (a b c)
 (list)                                  ; ()
 (list (+ 1 2) (+ 3 4) (+ 5 6))          ; (3 7 11)
+string-append                           ; #<procedure>
+(string-append "asdf")                  ; "asdf"
+(string-append "asdf" "ghjk")           ; "asdfghjk"
+(string-append (symbol->string 'a) "b") ; "ab"
+(string-append "hello" " " "world\n")   ; "hello world\n"
 char->integer                           ; #<procedure>
 (char->integer #\a)                     ; 97
 (char->integer #\newline)               ; 10
