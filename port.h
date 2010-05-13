@@ -28,9 +28,9 @@ void set_error_port(object *p);
 void open_port(object *p, char const *file);
 void close_port(object *p);
 
-inline int port_is_open(object *p) { return p->value.port.state == 1; }
-inline int port_is_closed(object *p) { return p->value.port.state == 0; }
-inline int port_is_eof(object *p) { return p->value.port.state == -1; }
+static inline int port_is_open(object *p) { return p->value.port.state == 1; }
+static inline int port_is_closed(object *p) { return p->value.port.state == 0; }
+static inline int port_is_eof(object *p) { return p->value.port.state == -1; }
 
 int read_char();
 int peek_char();
